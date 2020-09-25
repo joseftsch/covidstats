@@ -1,1 +1,1 @@
-# covidtostats
+# covidstats
