@@ -2,13 +2,23 @@ import requests, csv, configparser
 import paho.mqtt.client as mqtt
 
 def on_connect(client, userdata, flags, rc):
-    if rc != 0:
-        print("Connected not successfull - error code is " + str(rc))
+    print("MQTT connection status: " + str(rc))
+
+def validate_config(config):
+    if not 'opendata' or not 'covid' or not 'mqtt' in config:
+        print('opendata or covid or mqtt section missing from config file - exit')
+        exit(-1)
+    
+    if not str(config['covid']['bezirke']) or not str(config['opendata']['csvurl']):
+        print('Configuration for Bezirke or CSVURL is not correct or missing - exit')
+        exit(-1)
 
 def main():
     config = configparser.ConfigParser()
     config.sections()
     config.read('coviddata.ini')
+
+    validate_config(config)
 
     url = config['opendata']['csvurl']
     bezirke = config['covid']['bezirke']
@@ -16,7 +26,12 @@ def main():
     client = mqtt.Client()
     client.on_connect = on_connect
 
-    client.connect(config['mqtt']['mqtthost'], int(config['mqtt']['mqttport']), int(config['mqtt']['mqttkeepalive']))
+    try:
+        client.connect(config['mqtt']['mqtthost'], int(config['mqtt']['mqttport']), int(config['mqtt']['mqttkeepalive']))
+    except Exception as e:
+        print("MQTT connection not possible")
+        raise SystemExit(e)
+
     client.loop_start()
 
     with requests.Session() as s:
