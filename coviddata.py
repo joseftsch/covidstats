@@ -43,7 +43,11 @@ def main():
             print("Download of CSV file failed")
             raise SystemExit(e)
         
-        csv_reader = csv.DictReader(decoded_content.splitlines(), delimiter=';')
+        try:
+            csv_reader = csv.DictReader(decoded_content.splitlines(), delimiter=';')
+        except csv.Error as e:
+            raise SystemExit(e)
+
         for row in csv_reader:
             #print(row["Bezirk"],":",row["Anzahl"])
             if row["Bezirk"] in bezirke:
