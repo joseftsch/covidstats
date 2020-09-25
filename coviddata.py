@@ -20,10 +20,14 @@ client.loop_start()
 
 def main():
     with requests.Session() as s:
-        download = s.get(url)
-
-        decoded_content = download.content.decode('utf-8')
-
+        
+        try:
+            download = s.get(url)
+            decoded_content = download.content.decode('utf-8')
+        except requests.exceptions.RequestException as e:
+            print("Download of CSV file failed")
+            raise SystemExit(e)
+        
         csv_reader = csv.DictReader(decoded_content.splitlines(), delimiter=';')
         for row in csv_reader:
             #print(row["Bezirk"],":",row["Anzahl"])
