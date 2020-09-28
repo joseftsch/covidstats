@@ -11,3 +11,4 @@ All configuration is done in the `coviddata.ini` file.
 * mqtt
 * influxdb (WIP)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=joseftsch_covidstats&metric=alert_status)](https://sonarcloud.io/dashboard?id=joseftsch_covidstats)
