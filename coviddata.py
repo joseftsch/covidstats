@@ -1,18 +1,12 @@
 import requests, csv, configparser
 import paho.mqtt.client as mqtt
 
-def validate_config(config):
-    if not 'opendata' or not 'mqtt' in config:
-        print('opendata or mqtt section missing from config file - exit')
-        exit(-1)
-    
-    if not str(config['opendata']['bezirke']) or not str(config['opendata']['csvurl']):
-        print('Configuration for Bezirke or CSVURL is not correct or missing - exit')
-        exit(-1)
-
 def on_connect(client, userdata, flags, rc):
     if rc != 0:
         print("MQTT connection status: " + str(rc))
+
+def print_row(row):
+    print(row["Bezirk"],":",row["Anzahl"],":",row["Timestamp"])
 
 def insert_mqtt(config,row):
     client = mqtt.Client()
@@ -29,17 +23,12 @@ def insert_mqtt(config,row):
     client.publish("health/covid/anzahl/"+str(row["Bezirk"]), row["Anzahl"])
 
 def insert_influxdb(config,row):
-    print("insert_influxdb, tbd")
-
-def print_std(row):
-    print(row["Bezirk"],":",row["Anzahl"],":",row["Timestamp"])
+    print("calling insert_influxdb")
 
 def main():
     config = configparser.ConfigParser()
     config.sections()
     config.read('coviddata.ini')
-
-    validate_config(config)
 
     url = config['opendata']['csvurl']
     bezirke = config['opendata']['bezirke']
@@ -60,7 +49,7 @@ def main():
 
         for row in csv_reader:
             if row["Bezirk"] in bezirke:
-                print_std(row)
+                print_row(row)
                 insert_mqtt(config,row)
                 #insert_influxdb(config,row)
 
