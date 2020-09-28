@@ -1,9 +1,6 @@
 import requests, csv, configparser
 import paho.mqtt.client as mqtt
 
-def on_connect(client, userdata, flags, rc):
-    print("MQTT connection status: " + str(rc))
-
 def validate_config(config):
     if not 'opendata' or not 'covid' or not 'mqtt' in config:
         print('opendata or covid or mqtt section missing from config file - exit')
@@ -13,16 +10,11 @@ def validate_config(config):
         print('Configuration for Bezirke or CSVURL is not correct or missing - exit')
         exit(-1)
 
-def main():
-    config = configparser.ConfigParser()
-    config.sections()
-    config.read('coviddata.ini')
+def on_connect(client, userdata, flags, rc):
+    if rc != 0:
+        print("MQTT connection status: " + str(rc))
 
-    validate_config(config)
-
-    url = config['opendata']['csvurl']
-    bezirke = config['covid']['bezirke']
-
+def insert_mqtt(config,row):
     client = mqtt.Client()
     client.on_connect = on_connect
 
@@ -33,6 +25,24 @@ def main():
         raise SystemExit(e)
 
     client.loop_start()
+
+    client.publish("health/covid/anzahl/"+str(row["Bezirk"]), row["Anzahl"])
+
+def insert_influxdb(config,row):
+    print("insert_influxdb, tbd")
+
+def print_std(row):
+    print(row["Bezirk"],":",row["Anzahl"],":",row["Timestamp"])
+
+def main():
+    config = configparser.ConfigParser()
+    config.sections()
+    config.read('coviddata.ini')
+
+    validate_config(config)
+
+    url = config['opendata']['csvurl']
+    bezirke = config['covid']['bezirke']
 
     with requests.Session() as s:
         
@@ -49,10 +59,10 @@ def main():
             raise SystemExit(e)
 
         for row in csv_reader:
-            #print(row["Bezirk"],":",row["Anzahl"])
             if row["Bezirk"] in bezirke:
-                client.publish("health/covid/anzahl/"+str(row["Bezirk"]), row["Anzahl"])
-                print(row["Bezirk"],":",row["Anzahl"],":",row["Timestamp"])
+                print_std(row)
+                insert_mqtt(config,row)
+                #insert_influxdb(config,row)
 
 if __name__ == "__main__": 
 	main()
