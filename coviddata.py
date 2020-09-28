@@ -20,7 +20,7 @@ def insert_mqtt(config,row):
 
     client.loop_start()
 
-    client.publish("health/covid/anzahl/"+str(row["Bezirk"]), row["Anzahl"])
+    client.publish(config['mqtt']['mqttpath']+str(row["Bezirk"]), row["Anzahl"])
 
 def insert_influxdb(config,row):
     print("calling insert_influxdb")
@@ -49,7 +49,8 @@ def main():
 
         for row in csv_reader:
             if row["Bezirk"] in bezirke:
-                print_row(row)
+                if config['debug']['debug'] == 'yes':
+                    print_row(row)
                 insert_mqtt(config,row)
                 #insert_influxdb(config,row)
 
