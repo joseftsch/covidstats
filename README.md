@@ -7,6 +7,7 @@ WIP
 ## Configuration
 All configuration is done in the `coviddata.ini` file.
 ## Currently supported endpoints
+(see Configuration section for details on settings)
 * mqtt
 * influxdb (WIP)
-(see Configuration section for details on settings)
+
