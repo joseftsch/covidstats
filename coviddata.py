@@ -2,11 +2,11 @@ import requests, csv, configparser
 import paho.mqtt.client as mqtt
 
 def validate_config(config):
-    if not 'opendata' or not 'covid' or not 'mqtt' in config:
-        print('opendata or covid or mqtt section missing from config file - exit')
+    if not 'opendata' or not 'mqtt' in config:
+        print('opendata or mqtt section missing from config file - exit')
         exit(-1)
     
-    if not str(config['covid']['bezirke']) or not str(config['opendata']['csvurl']):
+    if not str(config['opendata']['bezirke']) or not str(config['opendata']['csvurl']):
         print('Configuration for Bezirke or CSVURL is not correct or missing - exit')
         exit(-1)
 
@@ -42,7 +42,7 @@ def main():
     validate_config(config)
 
     url = config['opendata']['csvurl']
-    bezirke = config['covid']['bezirke']
+    bezirke = config['opendata']['bezirke']
 
     with requests.Session() as s:
         
