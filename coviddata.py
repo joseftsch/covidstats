@@ -1,5 +1,6 @@
 import requests, csv, configparser
 import paho.mqtt.client as mqtt
+from influxdb import InfluxDBClient
 
 def on_connect(client, userdata, flags, rc):
     if rc != 0:
@@ -24,6 +25,12 @@ def insert_mqtt(config,row):
 
 def insert_influxdb(config,row):
     print("calling insert_influxdb")
+    try:
+        client = InfluxDBClient(host=config['influxdb']['influxdbhost'], port=config['influxdb']['influxdbport'], username=config['influxdb']['influxdbuser'], password=config['influxdb']['influxdbpassword'])
+    except Exception as e:
+        print("InfluxDB connection not possible")
+        raise SystemExit(e)
+    client.switch_database(config['influxdb']['influxdbdb'])
 
 def main():
     config = configparser.ConfigParser()
@@ -51,8 +58,10 @@ def main():
             if row["Bezirk"] in bezirke:
                 if config['debug']['debug'] == 'yes':
                     print_row(row)
-                insert_mqtt(config,row)
-                #insert_influxdb(config,row)
+                if config['mqtt']['usemqtt'] == 'yes':
+                    insert_mqtt(config,row)
+                if config['influxdb']['useinfluxdb'] == 'yes':
+                    insert_influxdb(config,row)
 
 if __name__ == "__main__": 
 	main()

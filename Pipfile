@@ -9,6 +9,7 @@ requests = "*"
 
 [packages]
 paho-mqtt = "*"
+influxdb = "*"
 
 [requires]
 python_version = "3.8"
