@@ -24,13 +24,20 @@ def insert_mqtt(config,row):
     client.publish(config['mqtt']['mqttpath']+str(row["Bezirk"]), row["Anzahl"])
 
 def insert_influxdb(config,row):
-    print("calling insert_influxdb")
+    data = []
+    data.append("{measurement},type=cases {district}={cases}"
+                    .format(measurement="covid",
+                    district=row["Bezirk"],
+                    cases=row["Anzahl"],
+                    timestamp=row["Timestamp"],
+                    ))
     try:
         client = InfluxDBClient(host=config['influxdb']['influxdbhost'], port=config['influxdb']['influxdbport'], username=config['influxdb']['influxdbuser'], password=config['influxdb']['influxdbpassword'])
     except Exception as e:
         print("InfluxDB connection not possible")
         raise SystemExit(e)
     client.switch_database(config['influxdb']['influxdbdb'])
+    client.write_points(data, database=config['influxdb']['influxdbdb'], time_precision='h', protocol='line')
 
 def main():
     config = configparser.ConfigParser()
