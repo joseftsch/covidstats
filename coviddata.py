@@ -24,15 +24,15 @@ def insert_mqtt(config,row):
 
 def insert_influxdb(config,row):
     #converting timestamp (as in csv) to milliseconds to insert into influxdb
-    date_time_obj = datetime.datetime.strptime(row["Timestamp"], '%Y-%m-%dT%H:00:00').strftime('%s.%f')
-    date_time_obj_in_ms = int(float(date_time_obj)*1000)
+    #date_time_obj = datetime.datetime.strptime(row["Timestamp"], '%Y-%m-%dT%H:00:00').strftime('%s.%f')
+    #date_time_obj_in_ms = int(float(date_time_obj)*1000)
 
     data = []
     data.append("{measurement},type=cases {district}={cases}"
                     .format(measurement="covid",
                     district=row["Bezirk"],
                     cases=row["Anzahl"],
-                    timestamp=date_time_obj_in_ms,
+                    #timestamp=date_time_obj_in_ms,
                     ))
     try:
         client = InfluxDBClient(host=config['influxdb']['influxdbhost'], port=config['influxdb']['influxdbport'], username=config['influxdb']['influxdbuser'], password=config['influxdb']['influxdbpassword'])
