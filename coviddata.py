@@ -1,7 +1,9 @@
-import requests, csv, configparser
+import csv
+import configparser
+import requests
 import paho.mqtt.client as mqtt
 from influxdb import InfluxDBClient
-import datetime
+#mport datetime
 import modules.debug_logging as debug_logging
 
 def on_connect(client, userdata, flags, rc):
@@ -50,14 +52,14 @@ def main():
     bezirke = config['opendata']['bezirke']
 
     with requests.Session() as s:
-        
+
         try:
             download = s.get(url)
             decoded_content = download.content.decode('utf-8')
         except requests.exceptions.RequestException as e:
             print("Download of CSV file failed")
             raise SystemExit(e)
-        
+
         try:
             csv_reader = csv.DictReader(decoded_content.splitlines(), delimiter=';')
         except csv.Error as e:
@@ -72,5 +74,5 @@ def main():
                 if config['influxdb']['useinfluxdb'] == 'yes':
                     insert_influxdb(config,row)
 
-if __name__ == "__main__": 
-	main()
+if __name__ == "__main__":
+    main()
