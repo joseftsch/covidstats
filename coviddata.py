@@ -2,13 +2,11 @@ import requests, csv, configparser
 import paho.mqtt.client as mqtt
 from influxdb import InfluxDBClient
 import datetime
+import modules.debug_logging as debug_logging
 
 def on_connect(client, userdata, flags, rc):
     if rc != 0:
         print("MQTT connection status: " + str(rc))
-
-def print_row(row):
-    print(row["Bezirk"],":",row["Anzahl"],":",row["Timestamp"])
 
 def insert_mqtt(config,row):
     client = mqtt.Client()
@@ -68,7 +66,7 @@ def main():
         for row in csv_reader:
             if row["Bezirk"] in bezirke:
                 if config['debug']['debug'] == 'yes':
-                    print_row(row)
+                    debug_logging.print_row(row)
                 if config['mqtt']['usemqtt'] == 'yes':
                     insert_mqtt(config,row)
                 if config['influxdb']['useinfluxdb'] == 'yes':
