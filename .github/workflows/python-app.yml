@@ -24,6 +24,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pylint
+        pipenv install
     - name: run pylint
       run: |
-        find . -type f -name "*.py" | xargs pylint
+        find . -type f -name "*.py" | xargs pylint --disable=C0103,C0301
