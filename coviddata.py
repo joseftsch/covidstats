@@ -1,5 +1,5 @@
 """
-Downloding and parsing COVID-19 data from https://www.data.gv.at/ 
+Downloding and parsing COVID-19 data from https://www.data.gv.at/
 """
 import csv
 import configparser

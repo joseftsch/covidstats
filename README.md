@@ -5,7 +5,7 @@ This script is intended to download and parse the "number of COVID-19 cases" CSV
 ## Installation
 * `git clone git@github.com:joseftsch/covidstats.git`
 * `cd covidstats`
-* `pipenv install`
+* `pipenv install --dev`
 ## Configuration
 All configuration is done in the `coviddata.ini` file.<br>There is currently no validation of values/sections in place so please keep them all in `coviddata.ini` file.
 Endpoints are enabled/disabled in the corresponding section with e.g "usemqtt = yes"
