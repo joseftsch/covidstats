@@ -6,7 +6,6 @@ import configparser
 import requests
 import paho.mqtt.client as mqtt
 from influxdb import InfluxDBClient
-#mport datetime
 import modules.debug_logging as debug_logging
 
 def on_connect(client, userdata, flags, rc):
@@ -28,16 +27,11 @@ def insert_mqtt(config,row):
     client.publish(config['mqtt']['mqttpath']+str(row["Bezirk"]), row["Anzahl"])
 
 def insert_influxdb(config,row):
-    #converting timestamp (as in csv) to milliseconds to insert into influxdb
-    #date_time_obj = datetime.datetime.strptime(row["Timestamp"], '%Y-%m-%dT%H:00:00').strftime('%s.%f')
-    #date_time_obj_in_ms = int(float(date_time_obj)*1000)
-
     data = []
     data.append("{measurement},type=cases {district}={cases}"
                     .format(measurement="covid",
                     district=row["Bezirk"],
                     cases=row["Anzahl"],
-                    #timestamp=date_time_obj_in_ms,
                     ))
     try:
         client = InfluxDBClient(host=config['influxdb']['influxdbhost'], port=config['influxdb']['influxdbport'], username=config['influxdb']['influxdbuser'], password=config['influxdb']['influxdbpassword'])

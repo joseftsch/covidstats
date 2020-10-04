@@ -26,5 +26,5 @@ jobs:
         pip install pylint pipenv
     - name: run pylint
       run: |
-        pipenv install --deploy
-        find . -type f -name "*.py" | xargs pipenv run pylint --disable=C0103,C0301
+        pipenv install --dev
+        pipenv run pylint coviddata --disable=C0103,C0301
