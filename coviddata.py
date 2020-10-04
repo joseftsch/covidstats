@@ -9,10 +9,16 @@ from influxdb import InfluxDBClient
 import modules.debug_logging as debug_logging
 
 def on_connect(client, userdata, flags, rc):
+    """
+    function to connect to mqtt
+    """
     if rc != 0:
-        print("MQTT connection status: " + str(rc))
+        print("MQTT connection status: " + str(rc) + str(client) + str(userdata) + str(flags))
 
 def insert_mqtt(config,row):
+    """
+    insert covid-19 data into mqtt
+    """
     client = mqtt.Client()
     client.on_connect = on_connect
 
@@ -27,6 +33,9 @@ def insert_mqtt(config,row):
     client.publish(config['mqtt']['mqttpath']+str(row["Bezirk"]), row["Anzahl"])
 
 def insert_influxdb(config,row):
+    """
+    insert covid-19 data into influxdb
+    """
     data = []
     data.append("{measurement},type=cases {district}={cases}"
                     .format(measurement="covid",
@@ -41,6 +50,9 @@ def insert_influxdb(config,row):
     client.write_points(data, database=config['influxdb']['influxdbdb'], time_precision='h', protocol='line')
 
 def main():
+    """
+    main function
+    """
     config = configparser.ConfigParser()
     config.sections()
     config.read('coviddata.ini')
@@ -49,7 +61,6 @@ def main():
     bezirke = config['opendata']['bezirke']
 
     with requests.Session() as s:
-
         try:
             download = s.get(url)
             decoded_content = download.content.decode('utf-8')
