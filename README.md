@@ -10,8 +10,10 @@ This script is intended to download and parse the "number of COVID-19 cases" CSV
 All configuration is done in the `coviddata.ini` file.<br>There is currently no validation of values/sections in place so please keep them all in `coviddata.ini` file.
 Endpoints are enabled/disabled in the corresponding section with e.g "usemqtt = yes"
 ## Currently supported endpoints
-(see Configuration section for details on settings)
 * mqtt
 * influxdb
+* debug/stdout
+
+(see comments in `coviddata.ini` for details on settings)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=joseftsch_covidstats&metric=alert_status)](https://sonarcloud.io/dashboard?id=joseftsch_covidstats)
