@@ -2,10 +2,12 @@
 > Parsing the virus ...
 ## Summary
 This script is intended to download and parse the "number of COVID-19 cases" CSV file (Published by the Austrian government on https://www.data.gv.at/covid-19/). Values for the given districts are extracted and published to different endpoints for further processing.
-## Installation
+## Installation & Prerequisite
 * `git clone git@github.com:joseftsch/covidstats.git`
 * `cd covidstats`
 * `pipenv install --dev`
+
+Please make sure you have Python 3.8, pip and pipenv installed and up to date. All other Python modules required for this application will be installed by pipenv.
 ## Configuration
 All configuration is done in the `coviddata.ini` file.<br>There is currently no validation of values/sections in place so please keep them all in `coviddata.ini` file.
 Endpoints are enabled/disabled in the corresponding section with e.g "usemqtt = yes"
