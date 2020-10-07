@@ -7,6 +7,7 @@ import requests
 import paho.mqtt.client as mqtt
 from influxdb import InfluxDBClient
 import modules.debug_logging as debug_logging
+import datetime
 
 def on_connect(client, userdata, flags, rc):
     """
@@ -36,18 +37,23 @@ def insert_influxdb(config,row):
     """
     insert covid-19 data into influxdb
     """
+    #converting timestamp (as in csv) to milliseconds to insert into influxdb
+    date_time_obj = datetime.datetime.strptime(row["Timestamp"], '%Y-%m-%dT%H:%M:%S').strftime('%s.%f')
+    date_time_obj_in_ns = int(float(date_time_obj)*1000*1000*1000)
+
     data = []
-    data.append("{measurement},type=cases {district}={cases}"
+    data.append("{measurement},type=cases {district}={cases} {timestamp}"
                     .format(measurement="covid",
                     district=row["Bezirk"],
                     cases=row["Anzahl"],
+                    timestamp=date_time_obj_in_ns,
                     ))
     try:
         client = InfluxDBClient(host=config['influxdb']['influxdbhost'], port=config['influxdb']['influxdbport'], username=config['influxdb']['influxdbuser'], password=config['influxdb']['influxdbpassword'])
     except Exception as e:
         print("InfluxDB connection not possible")
         raise SystemExit(e)
-    client.write_points(data, database=config['influxdb']['influxdbdb'], time_precision='h', protocol='line')
+    client.write_points(data, database=config['influxdb']['influxdbdb'], protocol='line')
 
 def main():
     """
