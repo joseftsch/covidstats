@@ -22,6 +22,7 @@ If you dont want to deal with Python there is also a experimental Dockerfile so 
 * `docker build -t covidstats .`
 * `docker run -it --rm --name covidstats covidstats`
 
+**Attention:** There is currently no way to pass the configuration (or parts of it) as variables to the Docker container. Make sure you edit `coviddata.ini` befor you build the image.
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=joseftsch_covidstats&metric=alert_status)](https://sonarcloud.io/dashboard?id=joseftsch_covidstats)
 ![Pylint check](https://github.com/joseftsch/covidstats/workflows/Pylint%20check/badge.svg)
