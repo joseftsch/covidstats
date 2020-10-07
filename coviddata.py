@@ -3,11 +3,11 @@ Downloding and parsing COVID-19 data from https://www.data.gv.at/
 """
 import csv
 import configparser
+import datetime
 import requests
 import paho.mqtt.client as mqtt
 from influxdb import InfluxDBClient
 import modules.debug_logging as debug_logging
-import datetime
 
 def on_connect(client, userdata, flags, rc):
     """
