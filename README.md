@@ -1,7 +1,12 @@
 # covidstats
 > Parsing the virus ...
 ## Summary
-This script is intended to download and parse the "number of COVID-19 cases" CSV file (Published by the Austrian government on https://www.data.gv.at/covid-19/). Values for the given districts are extracted and published to different endpoints for further processing.
+This script is intended to download and parse the COVID-19 data prepared by AGES (https://covid19-dashboard.ages.at/).
+Data is updated on regaluar basis (once a day between 13:00 - 14:00) and can be downloaded in compressed format from AGES website.
+
+They distribute different CSV files focusing on differen aspects. This tool only considers `CovidFaelle_Timeline_GKZ.csv` and `CovidFaelle_GKZ.csv`
+
+Values for the given districts are extracted and published to different endpoints for further processing.
 ## Installation & Prerequisite
 * `git clone git@github.com:joseftsch/covidstats.git`
 * `cd covidstats`
