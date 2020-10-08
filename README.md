@@ -1,3 +1,4 @@
+** This application is currently not working due to restructering and moving data from opendata to AGES - a fix is coming soon **
 # covidstats
 > Parsing the virus ...
 ## Summary
