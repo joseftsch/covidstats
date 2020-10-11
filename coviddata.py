@@ -3,57 +3,54 @@ Downloding and parsing COVID-19 data from https://www.data.gv.at/
 """
 import csv
 import configparser
-import datetime
+import os
+import zipfile
 import requests
-import paho.mqtt.client as mqtt
-from influxdb import InfluxDBClient
-import modules.debug_logging as debug_logging
+import modules.debug as debug
+import modules.endpoint_mqtt as endpoint_mqtt
+import modules.endpoint_influxdb as endpoint_influxdb
 
-def on_connect(client, userdata, flags, rc):
+def download_and_read(dir,zipurl):
     """
-    function to connect to mqtt
+    Downloding and parsing COVID-19 data from https://www.data.gv.at/
     """
-    if rc != 0:
-        print("MQTT connection status: " + str(rc) + str(client) + str(userdata) + str(flags))
-
-def insert_mqtt(config,row):
-    """
-    insert covid-19 data into mqtt
-    """
-    client = mqtt.Client()
-    client.on_connect = on_connect
-
     try:
-        client.connect(config['mqtt']['mqtthost'], int(config['mqtt']['mqttport']), int(config['mqtt']['mqttkeepalive']))
-    except Exception as e:
-        print("MQTT connection not possible")
+        resp = requests.get(zipurl)
+        with open("data.zip", "wb") as file:
+            file.write(resp.content)
+    except requests.exceptions.RequestException as e:
+        print("Download of AGES zip file failed")
         raise SystemExit(e)
 
-    client.loop_start()
+    with zipfile.ZipFile("data.zip", 'r') as zipObj:
+        zipObj.extract('CovidFaelle_GKZ.csv', dir)
 
-    client.publish(config['mqtt']['mqttpath']+str(row["Bezirk"]), row["Anzahl"])
+    os.remove("data.zip")
 
-def insert_influxdb(config,row):
+def parse_faelle_csv(dir,filename,bezirke):
     """
-    insert covid-19 data into influxdb
+    function to read and parse CSV file
     """
-    #converting timestamp (as in csv) to milliseconds to insert into influxdb
-    date_time_obj = datetime.datetime.strptime(row["Timestamp"], '%Y-%m-%dT%H:%M:%S').strftime('%s.%f')
-    date_time_obj_in_ns = int(float(date_time_obj)*1000*1000*1000)
+    covid_data = {}
+    with open(dir+"/"+filename, newline='', encoding='utf-8-sig') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=';')
+        for row in reader:
+            if row["Bezirk"] in bezirke:
+                covid_data[row["Bezirk"]] = {}
+                covid_data[row["Bezirk"]]['Bezirk'] = row["Bezirk"]
+                covid_data[row["Bezirk"]]['Einwohner'] = row["AnzEinwohner"]
+                covid_data[row["Bezirk"]]['Faelle'] = row["Anzahl"]
+                covid_data[row["Bezirk"]]['AnzahlTot'] = row["AnzahlTot"]
+                covid_data[row["Bezirk"]]['AnzahlFaelle7Tage'] = row["AnzahlFaelle7Tage"]
+                covid_data[row["Bezirk"]]['GKZ'] = row["GKZ"]
 
-    data = []
-    data.append("{measurement},type=cases {district}={cases} {timestamp}"
-                    .format(measurement="covid",
-                    district=row["Bezirk"],
-                    cases=row["Anzahl"],
-                    timestamp=date_time_obj_in_ns,
-                    ))
-    try:
-        client = InfluxDBClient(host=config['influxdb']['influxdbhost'], port=config['influxdb']['influxdbport'], username=config['influxdb']['influxdbuser'], password=config['influxdb']['influxdbpassword'])
-    except Exception as e:
-        print("InfluxDB connection not possible")
-        raise SystemExit(e)
-    client.write_points(data, database=config['influxdb']['influxdbdb'], protocol='line')
+    return covid_data
+
+def cleanup(datafolder):
+    """
+    function to cleanup data dir
+    """
+    os.remove(datafolder+"/"+"CovidFaelle_GKZ.csv")
 
 def main():
     """
@@ -63,30 +60,25 @@ def main():
     config.sections()
     config.read('coviddata.ini')
 
-    url = config['opendata']['csvurl']
-    bezirke = config['opendata']['bezirke']
+    zipurl = config['ages']['ages_zip_url']
+    bezirke = config['ages']['bezirke']
+    datafolder = config['ages']['data_folder']
 
-    with requests.Session() as s:
-        try:
-            download = s.get(url)
-            decoded_content = download.content.decode('utf-8')
-        except requests.exceptions.RequestException as e:
-            print("Download of CSV file failed")
-            raise SystemExit(e)
+    #download and get csv data
+    download_and_read(datafolder,zipurl)
 
-        try:
-            csv_reader = csv.DictReader(decoded_content.splitlines(), delimiter=';')
-        except csv.Error as e:
-            raise SystemExit(e)
+    # parse downloaded file
+    covid_data = parse_faelle_csv(datafolder,"CovidFaelle_GKZ.csv",bezirke)
 
-        for row in csv_reader:
-            if row["Bezirk"] in bezirke:
-                if config['debug']['debug'] == 'yes':
-                    debug_logging.print_row(row)
-                if config['mqtt']['usemqtt'] == 'yes':
-                    insert_mqtt(config,row)
-                if config['influxdb']['useinfluxdb'] == 'yes':
-                    insert_influxdb(config,row)
+    if config['debug']['debug'] == 'yes':
+        debug.debug(covid_data)
+    if config['mqtt']['usemqtt'] == 'yes':
+        endpoint_mqtt.insert_mqtt(config,covid_data)
+    if config['influxdb']['useinfluxdb'] == 'yes':
+        endpoint_influxdb.insert_influxdb(config,covid_data)
+
+    #cleanup
+    cleanup(datafolder)
 
 if __name__ == "__main__":
     main()
