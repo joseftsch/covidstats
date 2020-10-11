@@ -5,6 +5,8 @@ import csv
 import configparser
 import os
 import zipfile
+import json
+import sys
 import requests
 import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
@@ -32,10 +34,12 @@ def parse_faelle_csv(dir,filename,bezirke):
     function to read and parse CSV file
     """
     covid_data = {}
+    i = 0
     with open(dir+"/"+filename, newline='', encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         for row in reader:
             if row["Bezirk"] in bezirke:
+                i += 1
                 covid_data[row["Bezirk"]] = {}
                 covid_data[row["Bezirk"]]['Bezirk'] = row["Bezirk"]
                 covid_data[row["Bezirk"]]['Einwohner'] = row["AnzEinwohner"]
@@ -43,6 +47,9 @@ def parse_faelle_csv(dir,filename,bezirke):
                 covid_data[row["Bezirk"]]['AnzahlTot'] = row["AnzahlTot"]
                 covid_data[row["Bezirk"]]['AnzahlFaelle7Tage'] = row["AnzahlFaelle7Tage"]
                 covid_data[row["Bezirk"]]['GKZ'] = row["GKZ"]
+    if i != len(bezirke):
+        print("Not all districts are returned from AGES in CVS")
+        sys.exit('Not all districts are returned from AGES in CVS')
 
     return covid_data
 
@@ -61,7 +68,7 @@ def main():
     config.read('coviddata.ini')
 
     zipurl = config['ages']['ages_zip_url']
-    bezirke = config['ages']['bezirke']
+    bezirke = json.loads(config['ages']['bezirke'])
     datafolder = config['ages']['data_folder']
 
     #download and get csv data
