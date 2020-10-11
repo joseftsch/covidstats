@@ -31,4 +31,3 @@ If you dont want to deal with Python there is also a experimental Dockerfile so 
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=joseftsch_covidstats&metric=alert_status)](https://sonarcloud.io/dashboard?id=joseftsch_covidstats)
 ![Pylint check](https://github.com/joseftsch/covidstats/workflows/Pylint%20check/badge.svg)
-![Build Docker image](https://github.com/joseftsch/covidstats/workflows/Build%20Docker%20image/badge.svg)
