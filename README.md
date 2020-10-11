@@ -1,11 +1,10 @@
-**This application is currently not working due to restructering and moving data from opendata to AGES - a fix is coming soon**
 # covidstats
 > Parsing the virus ...
 ## Summary
 This script is intended to download and parse the COVID-19 data prepared by AGES (https://covid19-dashboard.ages.at/).
 Data is updated on regaluar basis (once a day between 13:00 - 14:00) and can be downloaded in compressed format from AGES website.
 
-They distribute different CSV files focusing on differen aspects. This tool only considers `CovidFaelle_Timeline_GKZ.csv` and `CovidFaelle_GKZ.csv`
+They distribute different CSV files focusing on differen aspects. This tool only considers `CovidFaelle_GKZ.csv` as of now.
 
 Values for the given districts are extracted and published to different endpoints for further processing.
 ## Installation & Prerequisite
@@ -26,7 +25,7 @@ Endpoints are enabled/disabled in the corresponding section with e.g "usemqtt = 
 ## Docker support
 If you dont want to deal with Python there is also a experimental Dockerfile so that you can build your own Docker image.
 * `docker build -t covidstats .`
-* `docker run -it --rm --name covidstats covidstats`
+* `docker run -v /tmp:/data --rm --name covidstats covidstats`
 
 **Attention:** There is currently no way to pass the configuration (or parts of it) as variables to the Docker container. Make sure you edit `coviddata.ini` befor you build the image.
 
