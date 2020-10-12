@@ -10,3 +10,9 @@ def debug(row):
     pp = pprint.PrettyPrinter(indent=1)
     pp.pprint(row)
     print("")
+
+def stdout(msg):
+    """
+    this function prints msg to stdout
+    """
+    print(msg)

@@ -63,6 +63,7 @@ def main():
     """
     main function
     """
+    debug.stdout("covidstats application startup ...")
     config = configparser.ConfigParser()
     config.sections()
     config.read('coviddata.ini')
@@ -86,6 +87,8 @@ def main():
 
     #cleanup
     cleanup(datafolder)
+
+    debug.stdout("covidstats application shutdown ...")
 
 if __name__ == "__main__":
     main()

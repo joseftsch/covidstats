@@ -17,8 +17,14 @@ def insert_mqtt(config,covid_data):
     client = mqtt.Client()
     client.on_connect = on_connect
 
+    mqtthost = config['mqtt']['mqtthost']
+    mqttport = int(config['mqtt']['mqttport'])
+    mqttkeepalive = int(config['mqtt']['mqttkeepalive'])
+    retain = bool(config['mqtt']['retain'])
+    qos = int(config['mqtt']['qos'])
+
     try:
-        client.connect(config['mqtt']['mqtthost'], int(config['mqtt']['mqttport']), int(config['mqtt']['mqttkeepalive']))
+        client.connect(mqtthost, mqttport, mqttkeepalive)
     except Exception as e:
         print("MQTT connection not possible")
         raise SystemExit(e)
@@ -27,4 +33,4 @@ def insert_mqtt(config,covid_data):
 
     for id, info in covid_data.items():
         for key in info:
-            client.publish(config['mqtt']['mqttpath']+str(covid_data[id]['Bezirk'])+"/"+key, info[key])
+            client.publish(config['mqtt']['mqttpath']+str(covid_data[id]['Bezirk'])+"/"+key, info[key], qos=qos, retain=retain)
