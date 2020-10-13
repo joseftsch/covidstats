@@ -2,6 +2,7 @@
 submodule for inserting covid data into influxdb
 """
 from datetime import datetime
+import pytz
 from influxdb import InfluxDBClient
 
 def insert_influxdb(config,covid_data):
@@ -9,8 +10,8 @@ def insert_influxdb(config,covid_data):
     insert covid-19 data into influxdb
     """
     data = []
-
-    now = datetime.now()
+    tz = pytz.timezone('Europe/Vienna')
+    now = datetime.now(tz=tz)
     dt_string = now.strftime("%s.%f")
     date_time_obj_in_ns = int(float(dt_string)*1000*1000*1000)
 
