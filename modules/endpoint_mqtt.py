@@ -2,6 +2,7 @@
 submodule for inserting data into MQTT
 """
 import paho.mqtt.client as mqtt
+from datetime import datetime
 
 def on_connect(client, userdata, flags, rc):
     """
@@ -16,6 +17,9 @@ def insert_mqtt(config,covid_data):
     """
     client = mqtt.Client()
     client.on_connect = on_connect
+
+    now = datetime.now()
+    dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
 
     mqtthost = config['mqtt']['mqtthost']
     mqttport = int(config['mqtt']['mqttport'])
@@ -34,3 +38,4 @@ def insert_mqtt(config,covid_data):
     for id, info in covid_data.items():
         for key in info:
             client.publish(config['mqtt']['mqttpath']+str(covid_data[id]['Bezirk'])+"/"+key, info[key], qos=qos, retain=retain)
+        client.publish(config['mqtt']['mqttpath']+str(covid_data[id]['Bezirk'])+"/"+"updated", dt_string, qos=qos, retain=retain)
