@@ -1,8 +1,8 @@
 """
 submodule for inserting data into MQTT
 """
-import paho.mqtt.client as mqtt
 from datetime import datetime
+import paho.mqtt.client as mqtt
 
 def on_connect(client, userdata, flags, rc):
     """
