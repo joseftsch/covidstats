@@ -1,7 +1,7 @@
 """
 submodule for inserting covid data into influxdb
 """
-from datetime import date
+from datetime import datetime
 from influxdb import InfluxDBClient
 
 def insert_influxdb(config,covid_data):
@@ -10,8 +10,9 @@ def insert_influxdb(config,covid_data):
     """
     data = []
 
-    today = date.today().strftime("%s.%f")
-    date_time_obj_in_ns = int(float(today)*1000*1000*1000)
+    now = datetime.now()
+    dt_string = now.strftime("%s.%f")
+    date_time_obj_in_ns = int(float(dt_string)*1000*1000*1000)
 
     for id, info in covid_data.items():
         data.append("{measurement},district={district} cases={cases},AnzahlFaelle7Tage={AnzahlFaelle7Tage},AnzahlTot={AnzahlTot},Einwohner={Einwohner},gkz={gkz} {timestamp}"
