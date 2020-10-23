@@ -11,6 +11,7 @@ import requests
 import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
+from filehash import FileHash
 
 def download_and_read(dir,zipurl):
     """
@@ -27,7 +28,31 @@ def download_and_read(dir,zipurl):
     with zipfile.ZipFile("data.zip", 'r') as zipObj:
         zipObj.extract('CovidFaelle_GKZ.csv', dir)
 
+    #call checkhash function
+    checkhash(dir,"CovidFaelle_GKZ.csv","hashes.sha512")
+
     os.remove("data.zip")
+
+def checkhash(dir,file,hashfile):
+    """
+    Check hash of CovidFaelle_GKZ.csv file. Only do stuff with it if it has changed
+    """
+    sha512hasher = FileHash('sha512')
+    hash = sha512hasher.hash_file(dir + "/" + file)
+    if os.path.isfile(dir+"/"+hashfile):
+        # file with hash value is present, compare hashes
+        print("Hashfile present")
+        checksums = dict(sha512hasher.verify_checksums(dir+"/"+hashfile))
+        for x, y in checksums.items():
+            if x == dir+"/"+file:
+                if y == True:
+                    print("Hashes match, I have already seen this file")
+                else:
+                    print("Hashes do not match ... we need to process this file")
+    else:
+        print("Hashfile not present, creating it ...")
+        with open(dir+"/"+hashfile, 'a') as hash_file:
+            hash_file.write(hash+' '+dir+"/"+file)
 
 def parse_faelle_csv(dir,filename,bezirke):
     """
