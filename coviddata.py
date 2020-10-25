@@ -8,10 +8,10 @@ import zipfile
 import json
 import sys
 import requests
+from filehash import FileHash
 import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
-from filehash import FileHash
 
 def download_and_read(dir,zipurl):
     """
@@ -29,8 +29,8 @@ def download_and_read(dir,zipurl):
         zipObj.extract('CovidFaelle_GKZ.csv', dir)
 
     #call checkhash function
-    checkhash(dir,"CovidFaelle_GKZ.csv","hashes.sha512")
-
+    processflag = checkhash(dir,"CovidFaelle_GKZ.csv","hashes.sha512")
+    print("Process this file: "+str(processflag))
     os.remove("data.zip")
 
 def checkhash(dir,file,hashfile):
@@ -45,14 +45,26 @@ def checkhash(dir,file,hashfile):
         checksums = dict(sha512hasher.verify_checksums(dir+"/"+hashfile))
         for x, y in checksums.items():
             if x == dir+"/"+file:
-                if y == True:
+                if y:
                     print("Hashes match, I have already seen this file")
+                    process = False
                 else:
-                    print("Hashes do not match ... we need to process this file")
+                    print("Hashes do not match ... we need to process this file; updating hashfile as well")
+                    writehashfile(dir,file,hashfile,hash)
+                    process = False
     else:
         print("Hashfile not present, creating it ...")
-        with open(dir+"/"+hashfile, 'a') as hash_file:
-            hash_file.write(hash+' '+dir+"/"+file)
+        writehashfile(dir,file,hashfile,hash)
+        process = False
+    return process
+
+def writehashfile(dir,file,hashfile,hash):
+    """
+    write hash value of covid csv file into file
+    """
+    with open(dir+"/"+hashfile, 'w') as hash_file:
+        hash_file.write(hash+' '+dir+"/"+file)
+        hash_file.close()
 
 def parse_faelle_csv(dir,filename,bezirke):
     """
