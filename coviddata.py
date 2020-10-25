@@ -30,8 +30,9 @@ def download_and_read(dir,zipurl):
 
     #call checkhash function
     processflag = checkhash(dir,"CovidFaelle_GKZ.csv","hashes.sha512")
-    print("Process this file: "+str(processflag))
     os.remove("data.zip")
+
+    return processflag
 
 def checkhash(dir,file,hashfile):
     """
@@ -46,7 +47,7 @@ def checkhash(dir,file,hashfile):
         for x, y in checksums.items():
             if x == dir+"/"+file:
                 if y:
-                    print("Hashes match, I have already seen this file")
+                    #print("Hashes match, I have already seen this file")
                     process = False
                 else:
                     print("Hashes do not match ... we need to process this file; updating hashfile as well")
@@ -110,20 +111,27 @@ def main():
     datafolder = config['ages']['data_folder']
 
     #download and get csv data
-    download_and_read(datafolder,zipurl)
+    processflag = download_and_read(datafolder,zipurl)
 
-    # parse downloaded file
-    covid_data = parse_faelle_csv(datafolder,"CovidFaelle_GKZ.csv",bezirke)
+    #check status of returned processflag if we continue operation or not
+    if processflag:
+        print("Continue operation as this is a new file to process. Status of flag: "+str(processflag))
+        
+        # parse downloaded file
+        covid_data = parse_faelle_csv(datafolder,"CovidFaelle_GKZ.csv",bezirke)
 
-    if config['debug']['debug'] == 'yes':
-        debug.debug(covid_data)
-    if config['mqtt']['usemqtt'] == 'yes':
-        endpoint_mqtt.insert_mqtt(config,covid_data)
-    if config['influxdb']['useinfluxdb'] == 'yes':
-        endpoint_influxdb.insert_influxdb(config,covid_data)
+        if config['debug']['debug'] == 'yes':
+            debug.debug(covid_data)
+        if config['mqtt']['usemqtt'] == 'yes':
+            endpoint_mqtt.insert_mqtt(config,covid_data)
+        if config['influxdb']['useinfluxdb'] == 'yes':
+            endpoint_influxdb.insert_influxdb(config,covid_data)
 
-    #cleanup
-    cleanup(datafolder)
+        #cleanup
+        cleanup(datafolder)
+    else:
+        print("Stop operation - Hashes match, I have already seen this file. Status of flag: "+str(processflag))
+
 
     debug.stdout("covidstats application shutdown ...")
 
