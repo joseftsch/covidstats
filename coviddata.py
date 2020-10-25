@@ -13,24 +13,24 @@ import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
 
-def download_and_read(dir,zipurl):
+def download_and_read(dir,zipurl,zipf,csvf):
     """
     Downloding and parsing COVID-19 data from https://www.data.gv.at/
     """
     try:
         resp = requests.get(zipurl)
-        with open("data.zip", "wb") as file:
+        with open(zipf, "wb") as file:
             file.write(resp.content)
     except requests.exceptions.RequestException as e:
         print("Download of AGES zip file failed")
         raise SystemExit(e)
 
-    with zipfile.ZipFile("data.zip", 'r') as zipObj:
-        zipObj.extract('CovidFaelle_GKZ.csv', dir)
+    with zipfile.ZipFile(zipf, 'r') as zipObj:
+        zipObj.extract(csvf, dir)
 
     #call checkhash function
-    processflag = checkhash(dir,"CovidFaelle_GKZ.csv","hashes.sha512")
-    os.remove("data.zip")
+    processflag = checkhash(dir,csvf,"hashes.sha512")
+    os.remove(zipf)
 
     return processflag
 
@@ -39,7 +39,7 @@ def checkhash(dir,file,hashfile):
     Check hash of CovidFaelle_GKZ.csv file. Only do stuff with it if it has changed
     """
     sha512hasher = FileHash('sha512')
-    hash = sha512hasher.hash_file(dir + "/" + file)
+    hashvalue = sha512hasher.hash_file(dir + "/" + file)
     if os.path.isfile(dir+"/"+hashfile):
         # file with hash value is present, compare hashes
         print("Hashfile present")
@@ -51,20 +51,20 @@ def checkhash(dir,file,hashfile):
                     process = False
                 else:
                     print("Hashes do not match ... we need to process this file; updating hashfile as well")
-                    writehashfile(dir,file,hashfile,hash)
+                    writehashfile(dir,file,hashfile,hashvalue)
                     process = True
     else:
         print("Hashfile not present, creating it ...")
-        writehashfile(dir,file,hashfile,hash)
+        writehashfile(dir,file,hashfile,hashvalue)
         process = True
     return process
 
-def writehashfile(dir,file,hashfile,hash):
+def writehashfile(dir,file,hashfile,hashvalue):
     """
     write hash value of covid csv file into file
     """
     with open(dir+"/"+hashfile, 'w') as hash_file:
-        hash_file.write(hash+' '+dir+"/"+file)
+        hash_file.write(hashvalue+' '+dir+"/"+file)
         hash_file.close()
 
 def parse_faelle_csv(dir,filename,bezirke):
@@ -91,11 +91,11 @@ def parse_faelle_csv(dir,filename,bezirke):
 
     return covid_data
 
-def cleanup(datafolder):
+def cleanup(datafolder,csvf):
     """
     function to cleanup data dir
     """
-    os.remove(datafolder+"/"+"CovidFaelle_GKZ.csv")
+    os.remove(datafolder+"/"+csvf)
 
 def main():
     """
@@ -109,16 +109,18 @@ def main():
     zipurl = config['ages']['ages_zip_url']
     bezirke = json.loads(config['ages']['bezirke'])
     datafolder = config['ages']['data_folder']
+    zipf = config['ages']['zipf']
+    csvf = config['ages']['csvf']
 
     #download and get csv data
-    processflag = download_and_read(datafolder,zipurl)
+    processflag = download_and_read(datafolder,zipurl,zipf,csvf)
 
     #check status of returned processflag if we continue operation or not
     if processflag:
         print("Continue operation as this is a new file to process. Status of flag: "+str(processflag))
 
         # parse downloaded file
-        covid_data = parse_faelle_csv(datafolder,"CovidFaelle_GKZ.csv",bezirke)
+        covid_data = parse_faelle_csv(datafolder,csvf,bezirke)
 
         if config['debug']['debug'] == 'yes':
             debug.debug(covid_data)
@@ -131,7 +133,7 @@ def main():
         print("Stop operation - Hashes match, I have already seen this file. Status of flag: "+str(processflag))
 
     #cleanup
-    cleanup(datafolder)
+    cleanup(datafolder,csvf)
 
     debug.stdout("covidstats application shutdown ...")
 
