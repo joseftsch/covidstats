@@ -25,7 +25,7 @@ Endpoints are enabled/disabled in the corresponding section with e.g "usemqtt = 
 ## Docker support
 If you dont want to deal with Python there is also a experimental Dockerfile so that you can build your own Docker image.
 * `docker build -t covidstats .`
-* `docker run -v /tmp:/data --rm --name covidstats covidstats`
+* `docker run -v /opt/docker/covidstats:/app/data --rm --name covidstats covidstats`
 
 **Attention:** There is currently no way to pass the configuration (or parts of it) as variables to the Docker container. Make sure you edit `coviddata.ini` befor you build the image.
 
