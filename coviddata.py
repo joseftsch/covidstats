@@ -127,11 +127,11 @@ def main():
         if config['influxdb']['useinfluxdb'] == 'yes':
             endpoint_influxdb.insert_influxdb(config,covid_data)
 
-        #cleanup
-        cleanup(datafolder)
     else:
         print("Stop operation - Hashes match, I have already seen this file. Status of flag: "+str(processflag))
 
+    #cleanup
+    cleanup(datafolder)
 
     debug.stdout("covidstats application shutdown ...")
 
