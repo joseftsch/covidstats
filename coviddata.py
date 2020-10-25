@@ -51,11 +51,11 @@ def checkhash(dir,file,hashfile):
                 else:
                     print("Hashes do not match ... we need to process this file; updating hashfile as well")
                     writehashfile(dir,file,hashfile,hash)
-                    process = False
+                    process = True
     else:
         print("Hashfile not present, creating it ...")
         writehashfile(dir,file,hashfile,hash)
-        process = False
+        process = True
     return process
 
 def writehashfile(dir,file,hashfile,hash):
