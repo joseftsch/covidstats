@@ -116,7 +116,7 @@ def main():
     #check status of returned processflag if we continue operation or not
     if processflag:
         print("Continue operation as this is a new file to process. Status of flag: "+str(processflag))
-        
+
         # parse downloaded file
         covid_data = parse_faelle_csv(datafolder,"CovidFaelle_GKZ.csv",bezirke)
 
