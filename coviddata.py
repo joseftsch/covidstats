@@ -120,7 +120,7 @@ def main():
 
     #download and get csv data
     processflag = download_and_read(datafolder,zipurl,zipf,csvf)
-    
+
     for name, status in processflag.items():
         if status:
             print("We need to process "+name+" as this is a new file."+str(processflag))
