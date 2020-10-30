@@ -26,37 +26,42 @@ def download_and_read(dir,zipurl,zipf,csvf):
         raise SystemExit(e)
 
     with zipfile.ZipFile(zipf, 'r') as zipObj:
-        zipObj.extract(csvf, dir)
+        for f in csvf:
+            zipObj.extract(f, dir)
 
     #call checkhash function
-    processflag = checkhash(dir,csvf,"hashes.sha512")
+    processflag = checkhash(dir,csvf)
     os.remove(zipf)
 
     return processflag
 
-def checkhash(dir,file,hashfile):
+def checkhash(dir,csvf):
     """
-    Check hash of CovidFaelle_GKZ.csv file. Only do stuff with it if it has changed
+    Check hash of file. Only do stuff with it if it has changed
     """
     sha512hasher = FileHash('sha512')
-    hashvalue = sha512hasher.hash_file(dir + "/" + file)
-    if os.path.isfile(dir+"/"+hashfile):
-        # file with hash value is present, compare hashes
-        print("Hashfile present")
-        checksums = dict(sha512hasher.verify_checksums(dir+"/"+hashfile))
-        for x, y in checksums.items():
-            if x == dir+"/"+file:
-                if y:
-                    #print("Hashes match, I have already seen this file")
-                    process = False
-                else:
-                    print("Hashes do not match ... we need to process this file; updating hashfile as well")
-                    writehashfile(dir,file,hashfile,hashvalue)
-                    process = True
-    else:
-        print("Hashfile not present, creating it ...")
-        writehashfile(dir,file,hashfile,hashvalue)
-        process = True
+    process = {}
+    for f in csvf:
+        hashfile = f+".sha512"
+        hashvalue = sha512hasher.hash_file(dir + "/" + f)
+        if os.path.isfile(dir+"/"+hashfile):
+            # file with hash value is present, compare hashes
+            print("Hashfile ("+hashfile+") present")
+            checksums = dict(sha512hasher.verify_checksums(dir+"/"+hashfile))
+            for x, y in checksums.items():
+                if x == dir+"/"+f:
+                    if y:
+                        #print("Hashes match, I have already seen this file")
+                        flag = False
+                    else:
+                        print("Hashes do not match ... we need to process this file; updating hashfile as well")
+                        writehashfile(dir,f,hashfile,hashvalue)
+                        flag = True
+        else:
+            print("Hashfile not present, creating it ...")
+            writehashfile(dir,f,hashfile,hashvalue)
+            flag = True
+        process[f] = flag
     return process
 
 def writehashfile(dir,file,hashfile,hashvalue):
@@ -95,7 +100,8 @@ def cleanup(datafolder,csvf):
     """
     function to cleanup data dir
     """
-    os.remove(datafolder+"/"+csvf)
+    for f in csvf:
+        os.remove(datafolder+"/"+f)
 
 def main():
     """
@@ -110,27 +116,29 @@ def main():
     bezirke = json.loads(config['ages']['bezirke'])
     datafolder = config['ages']['data_folder']
     zipf = config['ages']['zipf']
-    csvf = config['ages']['csvf']
+    csvf = json.loads(config['ages']['csvf'])
 
     #download and get csv data
     processflag = download_and_read(datafolder,zipurl,zipf,csvf)
+    
+    for name, status in processflag.items():
+        if status:
+            print("We need to process "+name+" as this is a new file."+str(processflag))
+            #this needs to go ...
+            if name == 'CovidFaelle_GKZ.csv':
+                print("Start parsing file: "+name+" now")
+                # parse downloaded file
+                covid_data = parse_faelle_csv(datafolder,name,bezirke)
 
-    #check status of returned processflag if we continue operation or not
-    if processflag:
-        print("Continue operation as this is a new file to process. Status of flag: "+str(processflag))
+                if config['debug']['debug'] == 'yes':
+                    debug.debug(covid_data)
+                if config['mqtt']['usemqtt'] == 'yes':
+                    endpoint_mqtt.insert_mqtt(config,covid_data)
+                if config['influxdb']['useinfluxdb'] == 'yes':
+                    endpoint_influxdb.insert_influxdb(config,covid_data)
 
-        # parse downloaded file
-        covid_data = parse_faelle_csv(datafolder,csvf,bezirke)
-
-        if config['debug']['debug'] == 'yes':
-            debug.debug(covid_data)
-        if config['mqtt']['usemqtt'] == 'yes':
-            endpoint_mqtt.insert_mqtt(config,covid_data)
-        if config['influxdb']['useinfluxdb'] == 'yes':
-            endpoint_influxdb.insert_influxdb(config,covid_data)
-
-    else:
-        print("Stop operation - Hashes match, I have already seen this file. Status of flag: "+str(processflag))
+        else:
+            print("No need to parse "+name+". Hashes match, I have already seen this file. Status of flag: "+str(processflag))
 
     #cleanup
     cleanup(datafolder,csvf)
