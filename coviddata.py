@@ -7,6 +7,7 @@ import os
 import zipfile
 import json
 import sys
+from datetime import date, timedelta
 import requests
 from filehash import FileHash
 import modules.debug as debug
@@ -18,7 +19,7 @@ def download_and_read(dir,zipurl,zipf,csvf):
     Downloding and parsing COVID-19 data from https://www.data.gv.at/
     """
     try:
-        resp = requests.get(zipurl)
+        resp = requests.get(zipurl, timeout=5)
         with open(zipf, "wb") as file:
             file.write(resp.content)
     except requests.exceptions.RequestException as e:
@@ -96,6 +97,39 @@ def parse_faelle_csv(dir,filename,bezirke):
 
     return covid_data
 
+def parse_faelle_timeline_csv(dir,filename,bundeslaender):
+    """
+    function to read and parse CSV file
+    """
+    covid_data = {}
+    yesterday = date.today() - timedelta(days=1)
+    yesterday = yesterday.strftime('%d.%m.%Y 00:00:00')
+    i = 0
+    with open(dir+"/"+filename, newline='', encoding='utf-8-sig') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=';')
+        for row in reader:
+            if row["Time"] == yesterday:
+                if row["Bundesland"] in bundeslaender:
+                    i += 1
+                    covid_data[row["Bundesland"]] = {}
+                    covid_data[row["Bundesland"]]['Bundesland'] = row["Bundesland"]
+                    covid_data[row["Bundesland"]]['BundeslandID'] = row["BundeslandID"]
+                    covid_data[row["Bundesland"]]['AnzEinwohner'] = row["AnzEinwohner"]
+                    covid_data[row["Bundesland"]]['AnzahlFaelle'] = row["AnzahlFaelle"]
+                    covid_data[row["Bundesland"]]['AnzahlFaelleSum'] = row["AnzahlFaelleSum"]
+                    covid_data[row["Bundesland"]]['AnzahlFaelle7Tage'] = row["AnzahlFaelle7Tage"]
+                    covid_data[row["Bundesland"]]['SiebenTageInzidenzFaelle'] = row["SiebenTageInzidenzFaelle"]
+                    covid_data[row["Bundesland"]]['AnzahlTotTaeglich'] = row["AnzahlTotTaeglich"]
+                    covid_data[row["Bundesland"]]['AnzahlTotSum'] = row["AnzahlTotSum"]
+                    covid_data[row["Bundesland"]]['AnzahlGeheiltTaeglich'] = row["AnzahlGeheiltTaeglich"]
+                    covid_data[row["Bundesland"]]['AnzahlGeheiltSum'] = row["AnzahlGeheiltSum"]
+                    covid_data[row["Bundesland"]]['Time'] = row["Time"]
+    if i != len(bundeslaender):
+        print("Not all Bundeslaender are returned from AGES in CVS")
+        sys.exit('Not all Bundeslaender are returned from AGES in CVS')
+
+    return covid_data
+
 def cleanup(datafolder,csvf):
     """
     function to cleanup data dir
@@ -114,6 +148,7 @@ def main():
 
     zipurl = config['ages']['ages_zip_url']
     bezirke = json.loads(config['ages']['bezirke'])
+    bundeslaender = json.loads(config['ages']['bundeslaender'])
     datafolder = config['ages']['data_folder']
     zipf = config['ages']['zipf']
     csvf = json.loads(config['ages']['csvf'])
@@ -124,18 +159,18 @@ def main():
     for name, status in processflag.items():
         if status:
             print("We need to process "+name+" as this is a new file."+str(processflag))
-            #this needs to go ...
+            print("Start parsing file: "+name+" now")
             if name == 'CovidFaelle_GKZ.csv':
-                print("Start parsing file: "+name+" now")
-                # parse downloaded file
                 covid_data = parse_faelle_csv(datafolder,name,bezirke)
+            if name == 'CovidFaelle_Timeline.csv':
+                covid_data = parse_faelle_timeline_csv(datafolder,name,bundeslaender)
 
-                if config['debug']['debug'] == 'yes':
-                    debug.debug(covid_data)
-                if config['mqtt']['usemqtt'] == 'yes':
-                    endpoint_mqtt.insert_mqtt(config,covid_data)
-                if config['influxdb']['useinfluxdb'] == 'yes':
-                    endpoint_influxdb.insert_influxdb(config,covid_data)
+            if config['debug']['debug'] == 'yes':
+                debug.debug(covid_data)
+            if config['mqtt']['usemqtt'] == 'yes':
+                endpoint_mqtt.insert_mqtt(config,covid_data)
+            if config['influxdb']['useinfluxdb'] == 'yes':
+                endpoint_influxdb.insert_influxdb(config,covid_data)
 
         else:
             print("No need to parse "+name+". Hashes match, I have already seen this file. Status of flag: "+str(processflag))
