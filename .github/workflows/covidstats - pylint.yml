@@ -26,4 +26,4 @@ jobs:
     - name: run pylint
       run: |
         pipenv install --dev
-        find . -type f -name "*.py" | xargs pipenv run pylint --disable=C0103,C0301,W0707,W0622,W0612
+        find . -type f -name "*.py" | xargs pipenv run pylint --disable=C0103,C0301,W0707,W0622,W0612,R0801
