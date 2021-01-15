@@ -1,10 +1,7 @@
 """
 submodule for inserting data into MQTT
 """
-#from datetime import datetime
-#import datetime
 import json
-#import pytz
 import paho.mqtt.client as mqtt
 
 def on_connect(client, userdata, flags, rc):
@@ -20,10 +17,6 @@ def insert_mqtt(config,covid_data):
     """
     client = mqtt.Client()
     client.on_connect = on_connect
-
-    #tz = pytz.timezone('Europe/Vienna')
-    #now = datetime.datetime.now(tz=tz)
-    #dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
 
     mqtthost = config['mqtt']['mqtthost']
     mqttport = int(config['mqtt']['mqttport'])
