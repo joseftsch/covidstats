@@ -25,14 +25,14 @@ Endpoints are enabled/disabled in the corresponding section with e.g "usemqtt = 
 ## Docker support
 If you dont want to deal with Python there is also a experimental Dockerfile so that you can build your own Docker image.
 * `docker build -t covidstats .`
-* `docker run -v /opt/docker/covidstats:/app/data --rm --name covidstats covidstats`
+* `docker run -v /opt/docker/covidstats/data:/app/data -v /opt/docker/covidstats/ogdata:/app/ogdata --rm --name covidstats covidstats`
 
 **Attention:** There is currently no way to pass the configuration (or parts of it) as variables to the Docker container. Make sure you edit `coviddata.ini` befor you build the image.
 
 ## Import historical data
 If you want to import historical data from `CovidFaelle_Timeline.csv` to influxdb you can use `import_historical.py`. You need to specify `--from-date` and `--to-date` as options (all other configuration values are read from `coviddata.ini`).
 
-Please note that both `--from-date` and `--to-date` are inclusive. 
+Please note that both `--from-date` and `--to-date` are inclusive.
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=joseftsch_covidstats&metric=alert_status)](https://sonarcloud.io/dashboard?id=joseftsch_covidstats)
 ![Pylint check](https://github.com/joseftsch/covidstats/workflows/Pylint%20check/badge.svg)
