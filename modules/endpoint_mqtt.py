@@ -11,7 +11,7 @@ def on_connect(client, userdata, flags, rc):
     if rc != 0:
         print("MQTT connection status: " + str(rc) + str(client) + str(userdata) + str(flags))
 
-def insert_mqtt(config,covid_data):
+def insert_mqtt(config,covid_data,flag):
     """
     insert covid-19 data into mqtt
     """
@@ -34,9 +34,17 @@ def insert_mqtt(config,covid_data):
 
     client.loop_start()
 
-    for id, info in covid_data.items():
-        for key in info:
-            if id in bezirke:
-                client.publish(config['mqtt']['mqttpath']+str(covid_data[id]['Bezirk'])+"/"+key, info[key], qos=qos, retain=retain)
-            if id in bundeslaender:
-                client.publish(config['mqtt']['mqttpath']+str(covid_data[id]['Bundesland'])+"/"+key, info[key], qos=qos, retain=retain)
+    if flag == 'cases':
+        for id, info in covid_data.items():
+            for key in info:
+                if id in bezirke:
+                    client.publish(config['mqtt']['mqttpath']+"cases/"+str(covid_data[id]['Bezirk'])+"/"+key, info[key], qos=qos, retain=retain)
+                if id in bundeslaender:
+                    client.publish(config['mqtt']['mqttpath']+"cases/"+str(covid_data[id]['Bundesland'])+"/"+key, info[key], qos=qos, retain=retain)
+    elif flag == 'vac':
+        for id, info in covid_data.items():
+            for key in info:
+                if id in bundeslaender:
+                    client.publish(config['mqtt']['mqttpath']+"vaccination/"+str(covid_data[id]['Bundesland'])+"/"+key, info[key], qos=qos, retain=retain)
+    else:
+        print("I dont know what to do with this flag"+str(flag))

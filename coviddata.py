@@ -6,7 +6,7 @@ import json
 import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
-from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup
+from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_laender_csv
 
 def main():
     """
@@ -17,6 +17,7 @@ def main():
     config.sections()
     config.read('coviddata.ini')
 
+    #AGES Data
     zipurl = config['ages']['ages_zip_url']
     bezirke = json.loads(config['ages']['bezirke'])
     bundeslaender = json.loads(config['ages']['bundeslaender'])
@@ -24,12 +25,21 @@ def main():
     zipf = config['ages']['zipf']
     csvf = json.loads(config['ages']['csvf'])
 
-    #download and get csv data
-    processflag = download_and_read(datafolder,zipurl,zipf,csvf)
+    #Opendata Data
+    og_base_url = config['opendata']['od_base_url']
+    og_csv_files = json.loads(config['opendata']['og_csv_files'])
+    og_data_folder = config['opendata']['og_data_folder']
 
-    for name, status in processflag.items():
+    #download and get csv data - AGES
+    ages_processflag = download_and_read(datafolder,zipurl,zipf,csvf)
+
+    #download and get csv data - OpenData
+    og_processflag = og_download(og_base_url,og_csv_files,og_data_folder)
+
+    #process ages csv data
+    for name, status in ages_processflag.items():
         if status:
-            print("We need to process "+name+" as this is a new file."+str(processflag))
+            print("We need to process "+name+" as this is a new file."+str(ages_processflag))
             print("Start parsing file: "+name+" now")
             if name == 'CovidFaelle_GKZ.csv':
                 covid_data = parse_faelle_csv(datafolder,name,bezirke)
@@ -39,15 +49,33 @@ def main():
             if config['debug']['debug'] == 'yes':
                 debug.debug(covid_data)
             if config['mqtt']['usemqtt'] == 'yes':
-                endpoint_mqtt.insert_mqtt(config,covid_data)
+                endpoint_mqtt.insert_mqtt(config,covid_data,'cases')
             if config['influxdb']['useinfluxdb'] == 'yes':
-                endpoint_influxdb.insert_influxdb(config,covid_data)
+                endpoint_influxdb.insert_influxdb(config,covid_data,'cases')
+        else:
+            print("No need to parse "+name+". Hashes match, I have already seen this file. Status of flag: "+str(ages_processflag))
+
+    #process opendata csv data
+    for name, status in og_processflag.items():
+        if status:
+            print("We need to process "+name+" as this is a new file."+str(og_processflag))
+            print("Start parsing file: "+name+" now")
+            if name == 'laender.csv':
+                covid_data = parse_vac_laender_csv(og_data_folder,name,bundeslaender)
+
+            if config['debug']['debug'] == 'yes':
+                debug.debug(covid_data)
+            if config['mqtt']['usemqtt'] == 'yes':
+                endpoint_mqtt.insert_mqtt(config,covid_data,'vac')
+            if config['influxdb']['useinfluxdb'] == 'yes':
+                endpoint_influxdb.insert_influxdb(config,covid_data,'vac')
 
         else:
-            print("No need to parse "+name+". Hashes match, I have already seen this file. Status of flag: "+str(processflag))
+            print("No need to parse "+name+". Hashes match, I have already seen this file. Status of flag: "+str(og_processflag))
 
     #cleanup
-    cleanup(datafolder,csvf)
+    cleanup(datafolder)
+    cleanup(og_data_folder)
 
     debug.stdout("covidstats application shutdown ...")
 

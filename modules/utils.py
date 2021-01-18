@@ -5,9 +5,31 @@ import zipfile
 import os
 import sys
 import csv
+import glob
 from datetime import date, timedelta
 from filehash import FileHash
 import requests
+
+def og_download(og_base_url,og_csv_files,og_data_folder):
+    """
+    Downloding and parsing vaccination data from https://info.gesundheitsministerium.gv.at/
+    """
+    #create data directory if not exists
+    if not os.path.exists(og_data_folder):
+        os.makedirs(og_data_folder)
+
+    for cfile in og_csv_files:
+        try:
+            r = requests.get(og_base_url+cfile, timeout=4)
+            with open('{}/{}'.format(og_data_folder,cfile), 'wb') as f:
+                f.write(r.content)
+        except requests.exceptions.RequestException as e:
+            print("Download of "+str(cfile)+" from gesundheitsministerium failed")
+            raise SystemExit(e)
+
+    processflag = checkhash(og_data_folder,og_csv_files)
+
+    return processflag
 
 def download_and_read(dir,zipurl,zipf,csvf):
     """
@@ -68,6 +90,35 @@ def writehashfile(dir,file,hashfile,hashvalue):
         hash_file.write(hashvalue+' '+dir+"/"+file)
         hash_file.close()
 
+def parse_vac_laender_csv(og_data_folder,name,bundeslaender):
+    """
+    function to read and parse CSV file for vaccine data - bundeslaender
+    """
+    covid_data = {}
+    i = 0
+    yesterday = date.today() - timedelta(days=1)
+    yesterday = yesterday.strftime('%Y-%m-%d')
+    with open(og_data_folder+"/"+name, newline='', encoding='utf-8-sig') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=';')
+        for row in reader:
+            if row["Name"] in bundeslaender:
+                i += 1
+                covid_data[row["Name"]] = {}
+                covid_data[row["Name"]]['Bundesland'] = row["Name"]
+                covid_data[row["Name"]]['Auslieferungen'] = row["Auslieferungen"]
+                covid_data[row["Name"]]['AuslieferungenPro100'] = row["AuslieferungenPro100"]
+                covid_data[row["Name"]]['Bestellungen'] = row["Bestellungen"]
+                covid_data[row["Name"]]['BestellungenPro100'] = row["BestellungenPro100"]
+                covid_data[row["Name"]]['Bevölkerung'] = row["Bevölkerung"]
+                covid_data[row["Name"]]['BundeslandID'] = row["BundeslandID"]
+            if row["Name"] == 'Stand':
+                covid_data[row["Name"]] = row["Auslieferungen"]
+
+    if i != len(bundeslaender):
+        print("We found "+str(i)+" records in provided CSV and not "+str(len(bundeslaender)))
+        sys.exit("We found "+str(i)+" records in provided CSV and not "+str(len(bundeslaender)))
+    return covid_data
+
 def parse_faelle_csv(dir,filename,bezirke):
     """
     function to read and parse CSV file
@@ -125,9 +176,13 @@ def parse_faelle_timeline_csv(dir,filename,bundeslaender):
 
     return covid_data
 
-def cleanup(datafolder,csvf):
+def cleanup(datafolder):
     """
     function to cleanup data dir
     """
-    for f in csvf:
-        os.remove(datafolder+"/"+f)
+    pattern=glob.glob(datafolder+'/*.csv', recursive=True)
+    for f in pattern:
+        try:
+            os.remove(f)
+        except OSError:
+            pass
