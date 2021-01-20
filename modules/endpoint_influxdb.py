@@ -17,6 +17,7 @@ def insert_influxdb(config,covid_data,flag):
     date_time_obj_in_ns = int(float(dt_string)*1000*1000*1000)
     bezirke = json.loads(config['ages']['bezirke'])
     bundeslaender = json.loads(config['ages']['bundeslaender'])
+    vienna = pytz.timezone('Europe/Vienna')
 
     if flag == 'cases':
         for id, _ in covid_data.items():
@@ -32,7 +33,7 @@ def insert_influxdb(config,covid_data,flag):
                     timestamp=date_time_obj_in_ns,
                     ))
             if id in bundeslaender:
-                local_dt = datetime.strptime(covid_data[id]['Time'], '%d.%m.%Y 00:00:00').replace(tzinfo=pytz.utc).astimezone(tz).strftime("%s.%f")
+                local_dt = datetime.strptime(covid_data[id]['Time'], '%d.%m.%Y 00:00:00').replace(tzinfo=pytz.timezone('Europe/Vienna')).astimezone(vienna).strftime("%s.%f")
                 time_in_ns = int(float(local_dt)*1000*1000*1000)
                 data.append("{measurement},Bundesland={Bundesland} BundeslandID={BundeslandID},AnzEinwohner={AnzEinwohner},AnzahlFaelle={AnzahlFaelle},AnzahlFaelleSum={AnzahlFaelleSum},AnzahlFaelle7Tage={AnzahlFaelle7Tage},SiebenTageInzidenzFaelle={SiebenTageInzidenzFaelle},AnzahlTotTaeglich={AnzahlTotTaeglich},AnzahlTotSum={AnzahlTotSum},AnzahlGeheiltTaeglich={AnzahlGeheiltTaeglich},AnzahlGeheiltSum={AnzahlGeheiltSum} {timestamp}"
                     .format(measurement="covid_bundesland",
@@ -50,7 +51,6 @@ def insert_influxdb(config,covid_data,flag):
                     timestamp=time_in_ns,
                     ))
     elif flag == 'vac':
-        vienna = pytz.timezone('Europe/Vienna')
         local_dt = datetime.strptime(covid_data.get('Stand'), '%Y-%m-%d %H:00:00').replace(tzinfo=pytz.timezone('Europe/Vienna')).astimezone(vienna).strftime("%s.%f")
         time_in_ns = int(float(local_dt)*1000*1000*1000)
         for id, _ in covid_data.items():
