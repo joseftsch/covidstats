@@ -186,3 +186,18 @@ def cleanup(datafolder):
             os.remove(f)
         except OSError:
             pass
+
+def notification(config,msg):
+    """
+    function to send notification
+    """
+    if config['notification']['notification_enabled'] == 'yes':
+        url = config['notification']['notification_url']
+        recipient = config['notification']['notification_recipient']
+        sender = config['notification']['notification_sender']
+        headers = { 'Content-Type': 'application/json'}
+        payload="{\"message\": \""+msg+"\", \"number\": \""+sender+"\", \"recipients\": [\""+recipient+"\"]}"
+        try:
+            requests.request("POST", url, headers=headers, data=payload)
+        except:
+            pass

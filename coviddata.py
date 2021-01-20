@@ -6,7 +6,7 @@ import json
 import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
-from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_laender_csv
+from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_laender_csv, notification
 
 def main():
     """
@@ -41,6 +41,7 @@ def main():
         if status:
             print("We need to process "+name+" as this is a new file."+str(ages_processflag))
             print("Start parsing file: "+name+" now")
+            notification(config,"covidstats: Parsing file: "+name)
             if name == 'CovidFaelle_GKZ.csv':
                 covid_data = parse_faelle_csv(datafolder,name,bezirke)
             if name == 'CovidFaelle_Timeline.csv':
@@ -60,6 +61,7 @@ def main():
         if status:
             print("We need to process "+name+" as this is a new file."+str(og_processflag))
             print("Start parsing file: "+name+" now")
+            notification(config,"covidstats: Parsing file: "+name)
             if name == 'laender.csv':
                 covid_data = parse_vac_laender_csv(og_data_folder,name,bundeslaender)
 
