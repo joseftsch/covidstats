@@ -51,7 +51,7 @@ def insert_influxdb(config,covid_data,flag):
                     timestamp=time_in_ns,
                     ))
     elif flag == 'vac':
-        local_dt = datetime.strptime(covid_data.get('Stand'), '%Y-%m-%d %H:00:00').replace(tzinfo=pytz.timezone('Europe/Vienna')).astimezone(vienna).strftime("%s.%f")
+        local_dt = datetime.strptime(covid_data.get('Stand'), '%Y-%m-%d %H:00').replace(tzinfo=pytz.timezone('Europe/Vienna')).astimezone(vienna).strftime("%s.%f")
         time_in_ns = int(float(local_dt)*1000*1000*1000)
         for id, _ in covid_data.items():
             if id in bundeslaender:
