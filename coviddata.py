@@ -6,7 +6,7 @@ import json
 import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
-from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_laender_csv, notification
+from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_timeline_csv, notification
 
 def main():
     """
@@ -61,9 +61,9 @@ def main():
         if status:
             print("We need to process "+name+" as this is a new file."+str(og_processflag))
             print("Start parsing file: "+name+" now")
-            notification(config,"covidstats: Parsing file: "+name)
-            if name == 'laender.csv':
-                covid_data = parse_vac_laender_csv(og_data_folder,name,bundeslaender)
+            #notification(config,"covidstats: Parsing file: "+name)
+            if name == 'timeline.csv':
+                covid_data = parse_vac_timeline_csv(og_data_folder,name,bundeslaender)
 
             if config['debug']['debug'] == 'yes':
                 debug.debug(covid_data)
@@ -71,7 +71,6 @@ def main():
                 endpoint_mqtt.insert_mqtt(config,covid_data,'vac')
             if config['influxdb']['useinfluxdb'] == 'yes':
                 endpoint_influxdb.insert_influxdb(config,covid_data,'vac')
-
         else:
             print("No need to parse "+name+". Hashes match, I have already seen this file. Status of flag: "+str(og_processflag))
 

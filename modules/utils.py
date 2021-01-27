@@ -9,6 +9,7 @@ import glob
 from datetime import date, timedelta
 from filehash import FileHash
 import requests
+import re
 
 def og_download(og_base_url,og_csv_files,og_data_folder):
     """
@@ -90,30 +91,37 @@ def writehashfile(dir,file,hashfile,hashvalue):
         hash_file.write(hashvalue+' '+dir+"/"+file)
         hash_file.close()
 
-def parse_vac_laender_csv(og_data_folder,name,bundeslaender):
+def parse_vac_timeline_csv(og_data_folder,name,bundeslaender):
     """
     function to read and parse CSV file for vaccine data - bundeslaender
     """
     covid_data = {}
+    today = date.today()
+    today = today.strftime('%Y-%m-%d')
+    regex = r'(\d+-\d+-\d+)\w(\d+\:\d+\:\d+)'
     i = 0
-    yesterday = date.today() - timedelta(days=1)
-    yesterday = yesterday.strftime('%Y-%m-%d')
     with open(og_data_folder+"/"+name, newline='', encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         for row in reader:
-            if row["Name"] in bundeslaender:
-                i += 1
-                covid_data[row["Name"]] = {}
-                covid_data[row["Name"]]['Bundesland'] = row["Name"]
-                covid_data[row["Name"]]['Auslieferungen'] = row["Auslieferungen"]
-                covid_data[row["Name"]]['AuslieferungenPro100'] = row["AuslieferungenPro100"]
-                covid_data[row["Name"]]['Bestellungen'] = row["Bestellungen"]
-                covid_data[row["Name"]]['BestellungenPro100'] = row["BestellungenPro100"]
-                covid_data[row["Name"]]['Bevölkerung'] = row["Bevölkerung"]
-                covid_data[row["Name"]]['BundeslandID'] = row["BundeslandID"]
-            if row["Name"] == 'Stand':
-                covid_data[row["Name"]] = row["Auslieferungen"]
-
+            if today in row["Datum"]:
+                if row["Name"] in bundeslaender:
+                    i += 1
+                    covid_data[row["Name"]] = {}
+                    covid_data[row["Name"]]['BundeslandID'] = row["BundeslandID"]
+                    covid_data[row["Name"]]['Bundesland'] = row["Name"]
+                    covid_data[row["Name"]]['Bevölkerung'] = row["Bevölkerung"]
+                    covid_data[row["Name"]]['Auslieferungen'] = row["Auslieferungen"]
+                    covid_data[row["Name"]]['AuslieferungenPro100'] = row["AuslieferungenPro100"]
+                    covid_data[row["Name"]]['Bestellungen'] = row["Bestellungen"]
+                    covid_data[row["Name"]]['BestellungenPro100'] = row["BestellungenPro100"]
+                    covid_data[row["Name"]]['EingetrageneImpfungen'] = row["EingetrageneImpfungen"]
+                    covid_data[row["Name"]]['EingetrageneImpfungenPro100'] = row["EingetrageneImpfungenPro100"]
+                    covid_data[row["Name"]]['Teilgeimpfte'] = row["Teilgeimpfte"]
+                    covid_data[row["Name"]]['TeilgeimpftePro100'] = row["TeilgeimpftePro100"]
+                    covid_data[row["Name"]]['Vollimmunisierte'] = row["Vollimmunisierte"]
+                    covid_data[row["Name"]]['VollimmunisiertePro100'] = row["VollimmunisiertePro100"]
+                    m = re.search(regex, row["Datum"])
+                    covid_data[row["Name"]]['Datum'] = m.group(1)+" "+m.group(2)
     if i != len(bundeslaender):
         print("We found "+str(i)+" records in provided CSV and not "+str(len(bundeslaender)))
         sys.exit("We found "+str(i)+" records in provided CSV and not "+str(len(bundeslaender)))
