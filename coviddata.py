@@ -61,7 +61,7 @@ def main():
         if status:
             print("We need to process "+name+" as this is a new file."+str(og_processflag))
             print("Start parsing file: "+name+" now")
-            #notification(config,"covidstats: Parsing file: "+name)
+            notification(config,"covidstats: Parsing file: "+name)
             if name == 'timeline.csv':
                 covid_data = parse_vac_timeline_csv(og_data_folder,name,bundeslaender)
 
