@@ -100,9 +100,9 @@ def parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender,day=False
         today = date.today()
         today = today.strftime(str(day))
     else:
-        today = date.today()
+        today = date.today() - timedelta(days=1)
         today = today.strftime('%Y-%m-%d')
-    print(today)
+    print("Using the following date for parse_vac_timeline_eimpfpass_csv:"+ str(today))
     regex = r'(\d+-\d+-\d+)\w(\d+\:\d+\:\d+)'
     i = 0
     with open(og_data_folder+"/"+name, newline='', encoding='utf-8-sig') as csvfile:
