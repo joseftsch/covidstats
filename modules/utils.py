@@ -91,13 +91,18 @@ def writehashfile(dir,file,hashfile,hashvalue):
         hash_file.write(hashvalue+' '+dir+"/"+file)
         hash_file.close()
 
-def parse_vac_timeline_csv(og_data_folder,name,bundeslaender):
+def parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender,day=False):
     """
     function to read and parse CSV file for vaccine data - bundeslaender
     """
     covid_data = {}
-    today = date.today()
-    today = today.strftime('%Y-%m-%d')
+    if day:
+        today = date.today()
+        today = today.strftime(str(day))
+    else:
+        today = date.today()
+        today = today.strftime('%Y-%m-%d')
+    print(today)
     regex = r'(\d+-\d+-\d+)\w(\d+\:\d+\:\d+)'
     i = 0
     with open(og_data_folder+"/"+name, newline='', encoding='utf-8-sig') as csvfile:
@@ -108,18 +113,36 @@ def parse_vac_timeline_csv(og_data_folder,name,bundeslaender):
                     i += 1
                     covid_data[row["Name"]] = {}
                     covid_data[row["Name"]]['BundeslandID'] = row["BundeslandID"]
-                    covid_data[row["Name"]]['Bundesland'] = row["Name"]
+                    covid_data[row["Name"]]['Name'] = row["Name"]
                     covid_data[row["Name"]]['Bevölkerung'] = row["Bevölkerung"]
-                    covid_data[row["Name"]]['Auslieferungen'] = row["Auslieferungen"]
-                    covid_data[row["Name"]]['AuslieferungenPro100'] = row["AuslieferungenPro100"]
-                    covid_data[row["Name"]]['Bestellungen'] = row["Bestellungen"]
-                    covid_data[row["Name"]]['BestellungenPro100'] = row["BestellungenPro100"]
                     covid_data[row["Name"]]['EingetrageneImpfungen'] = row["EingetrageneImpfungen"]
-                    covid_data[row["Name"]]['EingetrageneImpfungenPro100'] = row["EingetrageneImpfungenPro100"]
                     covid_data[row["Name"]]['Teilgeimpfte'] = row["Teilgeimpfte"]
-                    covid_data[row["Name"]]['TeilgeimpftePro100'] = row["TeilgeimpftePro100"]
                     covid_data[row["Name"]]['Vollimmunisierte'] = row["Vollimmunisierte"]
-                    covid_data[row["Name"]]['VollimmunisiertePro100'] = row["VollimmunisiertePro100"]
+                    covid_data[row["Name"]]['Gu24_1'] = str(int(row["Gruppe<24_M_1"])+int(row["Gruppe<24_W_1"])+int(row["Gruppe<24_D_1"]))
+                    covid_data[row["Name"]]['Gu24_2'] = str(int(row["Gruppe<24_M_2"])+int(row["Gruppe<24_W_2"])+int(row["Gruppe<24_D_2"]))
+                    covid_data[row["Name"]]['G25-34_1'] = str(int(row["Gruppe_25-34_M_1"])+int(row["Gruppe_25-34_W_1"])+int(row["Gruppe_25-34_D_1"]))
+                    covid_data[row["Name"]]['G25-34_2'] = str(int(row["Gruppe_25-34_M_2"])+int(row["Gruppe_25-34_W_2"])+int(row["Gruppe_25-34_D_2"]))
+                    covid_data[row["Name"]]['G35-44_1'] = str(int(row["Gruppe_35-44_M_1"])+int(row["Gruppe_35-44_W_1"])+int(row["Gruppe_35-44_D_1"]))
+                    covid_data[row["Name"]]['G35-44_2'] = str(int(row["Gruppe_35-44_M_2"])+int(row["Gruppe_35-44_W_2"])+int(row["Gruppe_35-44_D_2"]))
+                    covid_data[row["Name"]]['G45-54_1'] = str(int(row["Gruppe_45-54_M_1"])+int(row["Gruppe_45-54_W_1"])+int(row["Gruppe_45-54_D_1"]))
+                    covid_data[row["Name"]]['G45-54_2'] = str(int(row["Gruppe_45-54_M_2"])+int(row["Gruppe_45-54_W_2"])+int(row["Gruppe_45-54_D_2"]))
+                    covid_data[row["Name"]]['G55-64_1'] = str(int(row["Gruppe_55-64_M_1"])+int(row["Gruppe_55-64_W_1"])+int(row["Gruppe_55-64_D_1"]))
+                    covid_data[row["Name"]]['G55-64_2'] = str(int(row["Gruppe_55-64_M_2"])+int(row["Gruppe_55-64_W_2"])+int(row["Gruppe_55-64_D_2"]))
+                    covid_data[row["Name"]]['G65-74_1'] = str(int(row["Gruppe_65-74_M_1"])+int(row["Gruppe_65-74_W_1"])+int(row["Gruppe_65-74_D_1"]))
+                    covid_data[row["Name"]]['G65-74_2'] = str(int(row["Gruppe_65-74_M_2"])+int(row["Gruppe_65-74_W_2"])+int(row["Gruppe_65-74_D_2"]))
+                    covid_data[row["Name"]]['G75-84_1'] = str(int(row["Gruppe_75-84_M_1"])+int(row["Gruppe_75-84_W_1"])+int(row["Gruppe_75-84_D_1"]))
+                    covid_data[row["Name"]]['G75-84_2'] = str(int(row["Gruppe_75-84_M_2"])+int(row["Gruppe_75-84_W_2"])+int(row["Gruppe_75-84_D_2"]))
+                    covid_data[row["Name"]]['Gg84_1'] = str(int(row["Gruppe_>84_M_1"])+int(row["Gruppe_>84_W_1"])+int(row["Gruppe_>84_D_1"]))
+                    covid_data[row["Name"]]['Gg84_2'] = str(int(row["Gruppe_>84_M_2"])+int(row["Gruppe_>84_W_2"])+int(row["Gruppe_>84_D_2"]))
+                    covid_data[row["Name"]]['EingetrageneImpfungenBioNTechPfizer_1'] = row["EingetrageneImpfungenBioNTechPfizer_1"]
+                    covid_data[row["Name"]]['EingetrageneImpfungenModerna_1'] = row["EingetrageneImpfungenModerna_1"]
+                    covid_data[row["Name"]]['EingetrageneImpfungenAstraZeneca_1'] = row["EingetrageneImpfungenAstraZeneca_1"]
+                    covid_data[row["Name"]]['EingetrageneImpfungenBioNTechPfizer_2'] = row["EingetrageneImpfungenBioNTechPfizer_2"]
+                    covid_data[row["Name"]]['EingetrageneImpfungenModerna_2'] = row["EingetrageneImpfungenModerna_2"]
+                    covid_data[row["Name"]]['EingetrageneImpfungenAstraZeneca_2'] = row["EingetrageneImpfungenAstraZeneca_2"]
+                    covid_data[row["Name"]]['EingetrageneImpfungenBioNTechPfizer_G'] = str(int(row["EingetrageneImpfungenBioNTechPfizer_1"])+int(row["EingetrageneImpfungenBioNTechPfizer_2"]))
+                    covid_data[row["Name"]]['EingetrageneImpfungenModerna_G'] = str(int(row["EingetrageneImpfungenModerna_1"])+int(row["EingetrageneImpfungenModerna_2"]))
+                    covid_data[row["Name"]]['EingetrageneImpfungenAstraZeneca_G'] = str(int(row["EingetrageneImpfungenAstraZeneca_1"])+int(row["EingetrageneImpfungenAstraZeneca_2"]))
                     m = re.search(regex, row["Datum"])
                     covid_data[row["Name"]]['Datum'] = m.group(1)+" "+m.group(2)
     if i != len(bundeslaender):

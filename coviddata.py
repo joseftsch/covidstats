@@ -6,8 +6,8 @@ import json
 import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
-from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_timeline_csv, notification
-
+from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_timeline_eimpfpass_csv, notification
+import sys
 def main():
     """
     main function
@@ -62,8 +62,8 @@ def main():
             print("We need to process "+name+" as this is a new file."+str(og_processflag))
             print("Start parsing file: "+name+" now")
             notification(config,"covidstats: Parsing file: "+name)
-            if name == 'timeline.csv':
-                covid_data = parse_vac_timeline_csv(og_data_folder,name,bundeslaender)
+            if name == 'timeline-eimpfpass.csv':
+                covid_data = parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender,'2021-02-21')
 
             if config['debug']['debug'] == 'yes':
                 debug.debug(covid_data)

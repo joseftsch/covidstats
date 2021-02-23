@@ -53,23 +53,68 @@ def insert_influxdb(config,covid_data,flag):
     elif flag == 'vac':
         for id, _ in covid_data.items():
             if id in bundeslaender:
-                local_dt = datetime.strptime(covid_data[id]['Datum'], '%Y-%m-%d %H:00:00').replace(tzinfo=pytz.timezone('Europe/Vienna')).astimezone(vienna).strftime("%s.%f")
+                local_dt = datetime.strptime(covid_data[id]['Datum'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.timezone('Europe/Vienna')).astimezone(vienna).strftime("%s.%f")
                 time_in_ns = int(float(local_dt)*1000*1000*1000)
-                data.append("{measurement},Bundesland={Bundesland} Auslieferungen={Auslieferungen},AuslieferungenPro100={AuslieferungenPro100},Bestellungen={Bestellungen},BestellungenPro100={BestellungenPro100},Bevölkerung={Bevölkerung},BundeslandID={BundeslandID},EingetrageneImpfungen={EingetrageneImpfungen},EingetrageneImpfungenPro100={EingetrageneImpfungenPro100},Teilgeimpfte={Teilgeimpfte},TeilgeimpftePro100={TeilgeimpftePro100},Vollimmunisierte={Vollimmunisierte},VollimmunisiertePro100={VollimmunisiertePro100} {timestamp}"
+                data.append("{measurement},Bundesland={Bundesland} Bevoelkerung={Bevoelkerung},BundeslandID={BundeslandID},Teilgeimpfte={Teilgeimpfte},\
+Vollimmunisierte={Vollimmunisierte},\
+EingetrageneImpfungen={EingetrageneImpfungen},\
+EingetrageneImpfungenAstraZeneca_1={EingetrageneImpfungenAstraZeneca_1},\
+EingetrageneImpfungenAstraZeneca_2={EingetrageneImpfungenAstraZeneca_2},\
+EingetrageneImpfungenBioNTechPfizer_1={EingetrageneImpfungenBioNTechPfizer_1},\
+EingetrageneImpfungenBioNTechPfizer_2={EingetrageneImpfungenBioNTechPfizer_2},\
+EingetrageneImpfungenModerna_1={EingetrageneImpfungenModerna_1},\
+EingetrageneImpfungenModerna_2={EingetrageneImpfungenModerna_2},\
+EingetrageneImpfungenAstraZeneca_G={EingetrageneImpfungenAstraZeneca_G},\
+EingetrageneImpfungenBioNTechPfizer_G={EingetrageneImpfungenBioNTechPfizer_G},\
+EingetrageneImpfungenModerna_G={EingetrageneImpfungenModerna_G},\
+G25_34_1={G25_34_1},\
+G25_34_2={G25_34_2},\
+G35_44_1={G35_44_1},\
+G35_44_2={G35_44_2},\
+G45_54_1={G45_54_1},\
+G45_54_2={G45_54_2},\
+G55_64_1={G55_64_1},\
+G55_64_2={G55_64_2},\
+G65_74_1={G65_74_1},\
+G65_74_2={G65_74_2},\
+G75_84_1={G75_84_1},\
+G75_84_2={G75_84_2},\
+Gg84_2={Gg84_2},\
+Gg84_1={Gg84_1},\
+Gu24_1={Gu24_1},\
+Gu24_2={Gu24_2} {timestamp}"
                     .format(measurement="vaccination",
-                    Bundesland=covid_data[id]['Bundesland'],
-                    Auslieferungen=covid_data[id]['Auslieferungen'],
-                    AuslieferungenPro100=covid_data[id]['AuslieferungenPro100'].replace(",", "."),
-                    Bestellungen=covid_data[id]['Bestellungen'],
-                    BestellungenPro100=covid_data[id]['BestellungenPro100'].replace(",", "."),
-                    Bevölkerung=covid_data[id]['Bevölkerung'],
+                    Bundesland=covid_data[id]['Name'],
+                    Bevoelkerung=covid_data[id]['Bevölkerung'],
                     BundeslandID=covid_data[id]['BundeslandID'],
-                    EingetrageneImpfungen=covid_data[id]['EingetrageneImpfungen'],
-                    EingetrageneImpfungenPro100=covid_data[id]['EingetrageneImpfungenPro100'].replace(",", "."),
                     Teilgeimpfte=covid_data[id]['Teilgeimpfte'],
-                    TeilgeimpftePro100=covid_data[id]['TeilgeimpftePro100'].replace(",", "."),
                     Vollimmunisierte=covid_data[id]['Vollimmunisierte'],
-                    VollimmunisiertePro100=covid_data[id]['VollimmunisiertePro100'].replace(",", "."),
+                    EingetrageneImpfungen=covid_data[id]['EingetrageneImpfungen'],
+                    EingetrageneImpfungenAstraZeneca_1=covid_data[id]['EingetrageneImpfungenAstraZeneca_1'],
+                    EingetrageneImpfungenAstraZeneca_2=covid_data[id]['EingetrageneImpfungenAstraZeneca_2'],
+                    EingetrageneImpfungenBioNTechPfizer_1=covid_data[id]['EingetrageneImpfungenBioNTechPfizer_1'],
+                    EingetrageneImpfungenBioNTechPfizer_2=covid_data[id]['EingetrageneImpfungenBioNTechPfizer_2'],
+                    EingetrageneImpfungenModerna_1=covid_data[id]['EingetrageneImpfungenModerna_1'],
+                    EingetrageneImpfungenModerna_2=covid_data[id]['EingetrageneImpfungenModerna_2'],
+                    EingetrageneImpfungenAstraZeneca_G=covid_data[id]['EingetrageneImpfungenAstraZeneca_G'],
+                    EingetrageneImpfungenBioNTechPfizer_G=covid_data[id]['EingetrageneImpfungenBioNTechPfizer_G'],
+                    EingetrageneImpfungenModerna_G=covid_data[id]['EingetrageneImpfungenModerna_G'],
+                    G25_34_1=covid_data[id]['G25-34_1'],
+                    G25_34_2=covid_data[id]['G25-34_2'],
+                    G35_44_1=covid_data[id]['G35-44_1'],
+                    G35_44_2=covid_data[id]['G35-44_2'],
+                    G45_54_1=covid_data[id]['G45-54_1'],
+                    G45_54_2=covid_data[id]['G45-54_2'],
+                    G55_64_1=covid_data[id]['G55-64_1'],
+                    G55_64_2=covid_data[id]['G55-64_2'],
+                    G65_74_1=covid_data[id]['G65-74_1'],
+                    G65_74_2=covid_data[id]['G65-74_2'],
+                    G75_84_1=covid_data[id]['G75-84_1'],
+                    G75_84_2=covid_data[id]['G75-84_2'],
+                    Gg84_2=covid_data[id]['Gg84_2'],
+                    Gg84_1=covid_data[id]['Gg84_1'],
+                    Gu24_1=covid_data[id]['Gu24_1'],
+                    Gu24_2=covid_data[id]['Gu24_2'],
                     timestamp=time_in_ns,
                     ))
     else:

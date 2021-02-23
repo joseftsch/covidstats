@@ -45,6 +45,6 @@ def insert_mqtt(config,covid_data,flag):
         for id, info in covid_data.items():
             for key in info:
                 if id in bundeslaender:
-                    client.publish(config['mqtt']['mqttpath']+"vaccination/"+str(covid_data[id]['Bundesland'])+"/"+key, info[key], qos=qos, retain=retain)
+                    client.publish(config['mqtt']['mqttpath']+"vaccination/"+str(covid_data[id]['Name'])+"/"+key, info[key], qos=qos, retain=retain)
     else:
         print("I dont know what to do with this flag"+str(flag))
