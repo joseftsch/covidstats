@@ -63,7 +63,7 @@ def main():
             print("Start parsing file: "+name+" now")
             notification(config,"covidstats: Parsing file: "+name)
             if name == 'timeline-eimpfpass.csv':
-                covid_data = parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender,'2021-02-21')
+                covid_data = parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender)
 
             if config['debug']['debug'] == 'yes':
                 debug.debug(covid_data)
