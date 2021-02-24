@@ -144,7 +144,9 @@ def parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender,day=False
                     covid_data[row["Name"]]['EingetrageneImpfungenModerna_G'] = str(int(row["EingetrageneImpfungenModerna_1"])+int(row["EingetrageneImpfungenModerna_2"]))
                     covid_data[row["Name"]]['EingetrageneImpfungenAstraZeneca_G'] = str(int(row["EingetrageneImpfungenAstraZeneca_1"])+int(row["EingetrageneImpfungenAstraZeneca_2"]))
                     m = re.search(regex, row["Datum"])
-                    covid_data[row["Name"]]['Datum'] = m.group(1)+" "+m.group(2)
+                    covid_data[row["Name"]]['Timestamp'] = m.group(1)+" "+m.group(2)
+                    covid_data[row["Name"]]['Datum'] = m.group(1)
+                    covid_data[row["Name"]]['Datum08'] = str(m.group(1))+" 08:00:00"
     if i != len(bundeslaender):
         print("We found "+str(i)+" records in provided CSV and not "+str(len(bundeslaender)))
         sys.exit("We found "+str(i)+" records in provided CSV and not "+str(len(bundeslaender)))
