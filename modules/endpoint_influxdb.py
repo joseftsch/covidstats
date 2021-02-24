@@ -53,8 +53,10 @@ def insert_influxdb(config,covid_data,flag):
     elif flag == 'vac':
         for id, _ in covid_data.items():
             if id in bundeslaender:
-                local_dt = datetime.strptime(covid_data[id]['Datum'], '%Y-%m-%d %H:%M:%S').astimezone(pytz.timezone('Europe/Vienna')).strftime("%s.%f")
-                time_in_ns = int(float(local_dt)*1000*1000*1000)
+                #local_dt = datetime.strptime(covid_data[id]['Datum'], '%Y-%m-%d %H:%M:%S').astimezone(pytz.timezone('Europe/Vienna')).strftime("%s.%f")
+                #time_in_ns = int(float(local_dt)*1000*1000*1000)
+                dfromfile = datetime.strptime(covid_data[id]['Datum'], '%Y-%m-%d %H:%M:%S')
+                time_in_ns = int(float(pytz.timezone("Europe/Vienna").localize(dfromfile).strftime("%s.%f"))*1000*1000*1000)
                 data.append("{measurement},Bundesland={Bundesland} Bevoelkerung={Bevoelkerung},BundeslandID={BundeslandID},Teilgeimpfte={Teilgeimpfte},\
 Vollimmunisierte={Vollimmunisierte},\
 EingetrageneImpfungen={EingetrageneImpfungen},\
@@ -82,7 +84,8 @@ G75_84_2={G75_84_2},\
 Gg84_2={Gg84_2},\
 Gg84_1={Gg84_1},\
 Gu24_1={Gu24_1},\
-Gu24_2={Gu24_2} {timestamp}"
+Gu24_2={Gu24_2},\
+timestamp={timestamp} {timestamp}"
                     .format(measurement="vaccination",
                     Bundesland=covid_data[id]['Name'],
                     Bevoelkerung=covid_data[id]['Bevölkerung'],
