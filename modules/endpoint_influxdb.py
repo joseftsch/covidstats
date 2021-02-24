@@ -53,7 +53,7 @@ def insert_influxdb(config,covid_data,flag):
     elif flag == 'vac':
         for id, _ in covid_data.items():
             if id in bundeslaender:
-                local_dt = datetime.strptime(covid_data[id]['Datum'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.timezone('Europe/Vienna')).astimezone(vienna).strftime("%s.%f")
+                local_dt = datetime.strptime(covid_data[id]['Datum'], '%Y-%m-%d %H:%M:%S').astimezone(pytz.timezone('Europe/Vienna')).strftime("%s.%f")
                 time_in_ns = int(float(local_dt)*1000*1000*1000)
                 data.append("{measurement},Bundesland={Bundesland} Bevoelkerung={Bevoelkerung},BundeslandID={BundeslandID},Teilgeimpfte={Teilgeimpfte},\
 Vollimmunisierte={Vollimmunisierte},\
@@ -125,4 +125,5 @@ Gu24_2={Gu24_2} {timestamp}"
     except Exception as e:
         print("InfluxDB connection not possible")
         raise SystemExit(e)
+    print("writing following data to influxdb: "+str(data))
     client.write_points(data, database=config['influxdb']['influxdbdb'], protocol='line')
