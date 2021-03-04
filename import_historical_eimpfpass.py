@@ -10,7 +10,7 @@ import json
 from datetime import datetime, timedelta
 import modules.debug as debug
 import modules.endpoint_influxdb as endpoint_influxdb
-from modules.utils import parse_vac_timeline_csv
+from modules.utils import parse_vac_timeline_eimpfpass_csv
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
     parser = argparse.ArgumentParser(description='Options for historical vaccination data import',allow_abbrev=False)
     datafolder = config['opendata']['og_data_folder']
     bundeslaender = json.loads(config['ages']['bundeslaender'])
-    filename = "timeline.csv"
+    filename = "timeline-eimpfpass.csv"
 
     # add opts
     parser.add_argument('--from-date', help="Date to start import from (Format: yyyy.mm.dd) - this date is inclusive", default=False, action='store')
@@ -54,8 +54,7 @@ def main():
         for i in range(delta.days + 1):
             day = fromdate + timedelta(days=i)
             print("Parsing "+filename+" now with date "+str(day))
-            covid_data = parse_vac_timeline_csv(datafolder,filename,bundeslaender,day)
-
+            covid_data = parse_vac_timeline_eimpfpass_csv(datafolder,filename,bundeslaender,day)
             if config['debug']['debug'] == 'yes':
                 debug.debug(covid_data)
             endpoint_influxdb.insert_influxdb(config,covid_data,'vac')
