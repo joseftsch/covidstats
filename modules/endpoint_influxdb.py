@@ -83,8 +83,8 @@ G75_84_1={G75_84_1},\
 G75_84_2={G75_84_2},\
 Gg84_2={Gg84_2},\
 Gg84_1={Gg84_1},\
-Gu24_1={Gu24_1},\
-Gu24_2={Gu24_2} {timestamp}"
+Gu25_1={Gu25_1},\
+Gu25_2={Gu25_2} {timestamp}"
                     .format(measurement="vaccination",
                     Bundesland=covid_data[id]['Name'],
                     Bevoelkerung=covid_data[id]['Bevölkerung'],
@@ -115,8 +115,8 @@ Gu24_2={Gu24_2} {timestamp}"
                     G75_84_2=covid_data[id]['G75-84_2'],
                     Gg84_2=covid_data[id]['Gg84_2'],
                     Gg84_1=covid_data[id]['Gg84_1'],
-                    Gu24_1=covid_data[id]['Gu24_1'],
-                    Gu24_2=covid_data[id]['Gu24_2'],
+                    Gu25_1=covid_data[id]['Gu25_1'],
+                    Gu25_2=covid_data[id]['Gu25_2'],
                     timestamp=time_in_ns,
                     ))
     else:
