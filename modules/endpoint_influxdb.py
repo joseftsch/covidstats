@@ -69,6 +69,7 @@ EingetrageneImpfungenModerna_2={EingetrageneImpfungenModerna_2},\
 EingetrageneImpfungenAstraZeneca_G={EingetrageneImpfungenAstraZeneca_G},\
 EingetrageneImpfungenBioNTechPfizer_G={EingetrageneImpfungenBioNTechPfizer_G},\
 EingetrageneImpfungenModerna_G={EingetrageneImpfungenModerna_G},\
+EingetrageneImpfungenJanssen={EingetrageneImpfungenJanssen},\
 G25_34_1={G25_34_1},\
 G25_34_2={G25_34_2},\
 G35_44_1={G35_44_1},\
