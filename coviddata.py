@@ -65,16 +65,15 @@ def main():
         if status:
             print("We need to process "+name+" as this is a new file."+str(og_processflag))
             print("Start parsing file: "+name+" now")
-            notification(config,"covidstats: Parsing file: "+name)
             if name == 'timeline-eimpfpass.csv':
                 covid_data = parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender)
-
             if config['debug']['debug'] == 'yes':
                 debug.debug(covid_data)
             if config['mqtt']['usemqtt'] == 'yes':
                 endpoint_mqtt.insert_mqtt(config,covid_data,'vac')
             if config['influxdb']['useinfluxdb'] == 'yes':
                 endpoint_influxdb.insert_influxdb(config,covid_data,'vac')
+            notification(config,"covidstats: Parsing file: "+name)
         else:
             print("No need to parse "+name+". Hashes match, I have already seen this file. Status of flag: "+str(og_processflag))
 
