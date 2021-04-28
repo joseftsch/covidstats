@@ -17,6 +17,10 @@ def main():
     config.sections()
     config.read('coviddata.ini')
 
+    # log
+    logname = config['log']['name']
+    logfolder = config['log']['log_folder']
+
     #AGES Data
     zipurl = config['ages']['ages_zip_url']
     bezirke = json.loads(config['ages']['bezirke'])

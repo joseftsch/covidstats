@@ -134,3 +134,4 @@ dmypy.json
 # ignore stuff in data dir
 /data
 /ogdata
+/log

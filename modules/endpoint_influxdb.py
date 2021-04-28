@@ -101,6 +101,7 @@ Gu25_2={Gu25_2} {timestamp}"
                     EingetrageneImpfungenAstraZeneca_G=covid_data[id]['EingetrageneImpfungenAstraZeneca_G'],
                     EingetrageneImpfungenBioNTechPfizer_G=covid_data[id]['EingetrageneImpfungenBioNTechPfizer_G'],
                     EingetrageneImpfungenModerna_G=covid_data[id]['EingetrageneImpfungenModerna_G'],
+                    EingetrageneImpfungenJanssen=covid_data[id]['EingetrageneImpfungenJanssen'],
                     G25_34_1=covid_data[id]['G25-34_1'],
                     G25_34_2=covid_data[id]['G25-34_2'],
                     G35_44_1=covid_data[id]['G35-44_1'],

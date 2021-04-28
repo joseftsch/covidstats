@@ -143,6 +143,7 @@ def parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender,day=False
                     covid_data[row["Name"]]['EingetrageneImpfungenBioNTechPfizer_G'] = str(int(row["EingetrageneImpfungenBioNTechPfizer_1"])+int(row["EingetrageneImpfungenBioNTechPfizer_2"]))
                     covid_data[row["Name"]]['EingetrageneImpfungenModerna_G'] = str(int(row["EingetrageneImpfungenModerna_1"])+int(row["EingetrageneImpfungenModerna_2"]))
                     covid_data[row["Name"]]['EingetrageneImpfungenAstraZeneca_G'] = str(int(row["EingetrageneImpfungenAstraZeneca_1"])+int(row["EingetrageneImpfungenAstraZeneca_2"]))
+                    covid_data[row["Name"]]['EingetrageneImpfungenJanssen'] = row["EingetrageneImpfungenJanssen"]
                     m = re.search(regex, row["Datum"])
                     covid_data[row["Name"]]['Timestamp'] = m.group(1)+" "+m.group(2)
                     covid_data[row["Name"]]['Datum'] = m.group(1)
@@ -231,6 +232,7 @@ def notification(config,msg):
         headers = { 'Content-Type': 'application/json'}
         payload="{\"message\": \""+msg+"\", \"number\": \""+sender+"\", \"recipients\": [\""+recipient+"\"]}"
         try:
-            requests.request("POST", url, headers=headers, data=payload)
-        except:
+            r = requests.post(url, headers=headers, data=payload)
+        except Exception as e:
+            print("Error during sending of Signal notification: {}".format(str(e)))
             pass
