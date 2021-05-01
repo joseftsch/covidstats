@@ -7,9 +7,9 @@ import sys
 import csv
 import glob
 from datetime import date, timedelta
+import re
 from filehash import FileHash
 import requests
-import re
 
 def og_download(og_base_url,og_csv_files,og_data_folder):
     """
@@ -233,6 +233,5 @@ def notification(config,msg):
         payload="{\"message\": \""+msg+"\", \"number\": \""+sender+"\", \"recipients\": [\""+recipient+"\"]}"
         try:
             r = requests.post(url, headers=headers, data=payload)
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             print("Error during sending of Signal notification: {}".format(str(e)))
-            pass

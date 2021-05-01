@@ -1,7 +1,6 @@
 """
 This script allows to import historical covid data
 """
-import csv
 import configparser
 import argparse
 import os

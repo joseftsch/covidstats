@@ -95,7 +95,7 @@ def main():
 
             if config['debug']['debug'] == 'yes':
                 debug.debug(covid_data)
-            endpoint_influxdb.insert_influxdb(config,covid_data)
+            endpoint_influxdb.insert_influxdb(config,covid_data,'cases')
 
     else:
         sys.exit(filename+" does not exist in data folder - EXIT!")

@@ -7,7 +7,6 @@ import modules.debug as debug
 import modules.endpoint_mqtt as endpoint_mqtt
 import modules.endpoint_influxdb as endpoint_influxdb
 from modules.utils import download_and_read, parse_faelle_csv, parse_faelle_timeline_csv, cleanup, og_download, parse_vac_timeline_eimpfpass_csv, notification
-import sys
 def main():
     """
     main function
