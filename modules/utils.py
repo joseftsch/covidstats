@@ -105,7 +105,7 @@ def parse_vac_timeline_eimpfpass_csv(og_data_folder,name,bundeslaender,day=False
     print("Using the following date for parse_vac_timeline_eimpfpass_csv:"+ str(today))
     regex = r'(\d+-\d+-\d+)\w(\d+\:\d+\:\d+)'
     i = 0
-    with open(og_data_folder+"/"+name, newline='', encoding='ISO-8859-1') as csvfile:
+    with open(og_data_folder+"/"+name, newline='', encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         for row in reader:
             if today in row["Datum"]:
